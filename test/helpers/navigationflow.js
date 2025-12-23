@@ -236,6 +236,30 @@ class NavigationFlow {
         await InventoryPage.validateActiveNavbar('nav-k-BAG');
     }
 
+     // NAVIGASI LOGIN -> INVENTORY BAG JOG
+    static async loginAndNavigateToInventoryBagJOG(account = "JOG"){
+        const credentials = TestData.getCredentials(account);
+        // ======= OPEN LOGIN PAGE =======
+        await LoginPage.open();
+        
+        // ======= LOGIN =======
+        await LoginPage.login(credentials.username, credentials.password);
+        
+        // ======= NAVIGASI =======
+        // Navigasi Ke Settings Inventory
+        await SidebarPage.openInventory();
+
+        // Click Tab Bag
+        await InventoryPage.btnBag.waitForDisplayed({timeout:5000});
+        await InventoryPage.btnBag.waitForClickable({timeout:5000});
+        await InventoryPage.btnBag.click();
+
+        // ======= VALIDASI =======
+        // Validasi Halaman Inventory
+        await browser.pause(500);
+        await InventoryPage.validateActiveNavbar('nav-k-BAG');
+    }
+
     //  NAVIGASI LOGIN -> OUTGOING SURAT JALAN
     static async loginAndNavigateToSuratJalan(account = "SUB") {
         const credentials = TestData.getCredentials(account);
