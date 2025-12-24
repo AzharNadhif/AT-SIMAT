@@ -156,7 +156,7 @@ export const config = {
     //
 
     capabilities: [{
-        browserName: 'chrome',
+        browserName: 'chrome',  
         'goog:chromeOptions': {
             args: [
                 ...(isHeadless ? ['--headless=new', '--disable-gpu'] : []), // toggle dari .env
