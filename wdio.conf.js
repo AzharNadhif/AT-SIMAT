@@ -221,13 +221,14 @@ export const config = {
     // Framework you want to run your specs with.
     framework: 'mocha',
 
-    reporters: [
+    reporters: ['spec',
         ['allure', {
-            outputDir: '_results_/allure-raw',
+            outputDir: 'allure-results',
             disableWebdriverStepsReporting: true,
             disableWebdriverScreenshotsReporting: false,
-        }],
+        }]
     ],
+
 
     // Options to be passed to Mocha.
     // See the full list at http://mochajs.org/
