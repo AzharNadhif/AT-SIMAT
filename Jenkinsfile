@@ -52,18 +52,7 @@ pipeline {
         }
 
         /* =============================
-           4. CLEAN OLD ALLURE RESULT
-           ============================= */
-        stage('Clean Allure Results') {
-            steps {
-                echo "--- REMOVING OLD ALLURE FOLDERS ---"
-                bat 'if exist allure-results rmdir /s /q allure-results'
-                bat 'if exist allure-report rmdir /s /q allure-report'
-            }
-        }
-
-        /* =============================
-           5. RUN TEST
+           4. RUN TEST
            ============================= */
         stage('Run Tests') {
             steps {
