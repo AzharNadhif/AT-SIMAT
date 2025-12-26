@@ -1,10 +1,8 @@
 import path from 'path';
 import 'dotenv/config';
-import video from 'wdio-video-reporter';
 import fs from 'fs';
 
 const isHeadless = /^(1|true|yes|on)$/i.test(process.env.HEADLESS || '');
-const videoDir = path.join(process.cwd(), '_results_/videos');
 
 export const config = {
     //
@@ -145,10 +143,6 @@ export const config = {
     //
     maxInstances: 1,
 
-    // biar gak error "Some reporters are still unsynced: VideoReporter"
-    // (reporter video butuh waktu render & flush)
-    reporterSyncTimeout: 120000,
-
     //
     // If you have trouble getting all important capabilities together, check out the
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
@@ -227,91 +221,7 @@ export const config = {
     // Framework you want to run your specs with.
     framework: 'mocha',
 
-    onComplete: function(exitCode, config, capabilities, results) {
-        console.log('\n🎬 Cleaning up videos and screenshots...');
-
-        if (!fs.existsSync(videoDir)) {
-            console.log('⚠️  Video directory not found');
-            return;
-        }
-
-        // Hapus folder screenshots
-        const screenshotsDir = path.join(videoDir, '.video-reporter-screenshots');
-        if (fs.existsSync(screenshotsDir)) {
-            try {
-                fs.rmSync(screenshotsDir, { recursive: true, force: true });
-                console.log('🗑️  Deleted .video-reporter-screenshots folder');
-            } catch (err) {
-                console.log('⚠️  Failed to delete screenshots:', err.message);
-            }
-        }
-
-        // Cleanup video lama
-        const allVideos = fs.readdirSync(videoDir)
-            .filter(f => f.endsWith('.webm') || f.endsWith('.mp4'))
-            .map(f => ({
-                name: f,
-                path: path.join(videoDir, f),
-                time: fs.statSync(path.join(videoDir, f)).mtime.getTime()
-            }))
-            .sort((a, b) => b.time - a.time);
-
-        if (allVideos.length === 0) {
-            console.log('📹 No videos found');
-            return;
-        }
-
-        const videoGroups = {};
-
-        allVideos.forEach(video => {
-            const baseName = video.name
-                .replace(/--CHROME--.*\.(webm|mp4)$/i, '')
-                .replace(/--FIREFOX--.*\.(webm|mp4)$/i, '')
-                .replace(/-0-0$/, '');
-
-            if (!videoGroups[baseName]) {
-                videoGroups[baseName] = [];
-            }
-            videoGroups[baseName].push(video);
-        });
-
-        let deletedCount = 0;
-        Object.keys(videoGroups).forEach(baseName => {
-            const videos = videoGroups[baseName];
-
-            if (videos.length > 1) {
-                console.log(`\n📂 Test case: ${baseName}`);
-                console.log(`   Found ${videos.length} videos`);
-
-                videos.slice(1).forEach(video => {
-                    try {
-                        fs.unlinkSync(video.path);
-                        console.log(`   🗑️  Deleted: ${video.name}`);
-                        deletedCount++;
-                    } catch (err) {
-                        console.log(`   ⚠️  Failed to delete: ${video.name}`);
-                    }
-                });
-
-                console.log(`   ✅ Kept: ${videos[0].name}`);
-            }
-        });
-
-        console.log(`\n🎉 Cleanup complete! Deleted ${deletedCount} old video(s)\n`);
-    },
-
     reporters: [
-        [video, {
-            saveAllVideos: true,
-            videoSlowdownMultiplier: 1,
-            outputDir: videoDir,
-            videoRenderTimeout: 30000,
-            saveAllScreenshots: false,  // ← Disable screenshots
-            filename: function(options) {
-                const specName = options.specs[0].split('/').pop().replace('.js', '');
-                return `${specName}.mp4`;
-            }
-        }],
         ['allure', {
             outputDir: '_results_/allure-raw',
             disableWebdriverStepsReporting: true,
