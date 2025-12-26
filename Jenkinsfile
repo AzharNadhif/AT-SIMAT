@@ -9,7 +9,7 @@ pipeline {
         string(
             name: 'SUITES',
             defaultValue: '',
-            description: 'Suite yang ingin dijalankan. Contoh: HRS,ReceivingConnote'
+            description: 'Suite yang ingin dijalankan. Contoh: HRS,receivingConnote'
         )
 
         string(
@@ -70,26 +70,28 @@ pipeline {
                 script {
 
                     echo "--- PREPARING TEST EXECUTION ---"
+                    def hasTestFailure = false
 
-                    /* ==================================================
-                       PRIORITAS:
-                       1) SPEC
-                       2) SUITES (multi)
-                       3) ALL TESTS
-                       ================================================== */
-
-                    // 1) SPEC
+                    /* =============================
+                       1) RUN SPEC
+                       ============================= */
                     if (params.SPEC?.trim()) {
                         echo ">>> RUNNING SPEC FILE: ${params.SPEC}"
-                        bat """
-                            call npx wdio run ./wdio.conf.js --spec ${params.SPEC.trim()}
-                            IF %ERRORLEVEL% NEQ 0 exit /b 1
-                        """
-                        return
-                    }
 
-                    // 2) SUITES (bisa multiple)
-                    if (params.SUITES?.trim()) {
+                        def status = bat(
+                            script: "call npx wdio run ./wdio.conf.js --spec ${params.SPEC.trim()}",
+                            returnStatus: true
+                        )
+
+                        if (status != 0) {
+                            echo "❗ SPEC FAILED"
+                            hasTestFailure = true
+                        }
+
+                    /* =============================
+                       2) RUN SUITES (MULTI)
+                       ============================= */
+                    } else if (params.SUITES?.trim()) {
 
                         def suiteList = params.SUITES.split(',')
 
@@ -97,47 +99,61 @@ pipeline {
                             suiteName = suiteName.trim()
                             echo ">>> RUN SUITE: ${suiteName}"
 
-                            bat """
-                                call npx wdio run ./wdio.conf.js --suite ${suiteName}
-                                echo EXIT CODE: %ERRORLEVEL%
-                                IF %ERRORLEVEL% NEQ 0 exit /b 1
-                            """
+                            def status = bat(
+                                script: "call npx wdio run ./wdio.conf.js --suite ${suiteName}",
+                                returnStatus: true
+                            )
+
+                            if (status != 0) {
+                                echo "❗ SUITE FAILED: ${suiteName}"
+                                hasTestFailure = true
+                            }
                         }
 
-                        return
+                    /* =============================
+                       3) RUN ALL TEST
+                       ============================= */
+                    } else {
+                        echo ">>> RUNNING ALL TESTS"
+
+                        def status = bat(
+                            script: "call npx wdio run ./wdio.conf.js",
+                            returnStatus: true
+                        )
+
+                        if (status != 0) {
+                            echo "❗ TEST FAILURES DETECTED"
+                            hasTestFailure = true
+                        }
                     }
 
-                    // 4) DEFAULT = RUN ALL TEST
-                    echo ">>> RUNNING ALL TESTS (no parameter selected)"
-                    bat """
-                        call npx wdio run ./wdio.conf.js
-                        IF %ERRORLEVEL% NEQ 0 exit /b 1
-                    """
+                    /* =============================
+                       SET BUILD RESULT
+                       ============================= */
+                    if (hasTestFailure) {
+                        currentBuild.result = 'UNSTABLE'
+                        echo "⚠️ BUILD MARKED AS UNSTABLE (TEST FAILURES)"
+                    } else {
+                        echo "✅ ALL TESTS PASSED"
+                    }
                 }
-            }
-        }
-
-        /* =============================
-           6. GENERATE ALLURE REPORT
-           ============================= */
-        stage('Generate Allure Report') {
-            steps {
-                echo "--- GENERATING ALLURE ---"
-                allure([
-                    includeProperties: false,
-                    jdk: '',
-                    results: [[path: 'allure-results']]
-                ])
             }
         }
     }
 
     /* =============================
-       POST ACTION
+       POST ACTION (ALLURE ALWAYS)
        ============================= */
     post {
         always {
-            echo "--- ARCHIVING ARTIFACTS ---"
+            echo "--- GENERATING ALLURE REPORT ---"
+            allure([
+                includeProperties: false,
+                jdk: '',
+                results: [[path: 'allure-results']]
+            ])
+
+            echo "--- ARCHIVING ALLURE RESULTS ---"
             archiveArtifacts artifacts: 'allure-results/**', fingerprint: true
         }
     }
