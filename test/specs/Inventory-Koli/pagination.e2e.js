@@ -11,7 +11,7 @@ describe('AT-CORE-0013', () => {
     });
 
     describe('AT-CORE-0013-07', () => {
-        it('should validate pagination behavior', async () => {
+        it('Validate Data Table Pagination', async () => {
             await PaginationPage.validatePagination();
         });
     });

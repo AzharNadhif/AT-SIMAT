@@ -1,0 +1,4 @@
+[[Remove Additional Connote] Connote baris ke-2 ("060841873630002800") masih tampil] [2mexpect([22m[31mreceived[39m[2m).[22mnot[2m.[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+Expected value: not [32m"060841873630002800"[39m
+Received array:     [31m["060841873630002700", "060841873630002700", [7m"060841873630002800"[27m, "060841873630002800"][39m

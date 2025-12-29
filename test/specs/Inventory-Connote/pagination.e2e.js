@@ -10,7 +10,7 @@ describe('AT-CORE-0014', () => {
     });
 
     describe('AT-CORE-0014-07', () => {
-        it('should validate pagination behavior', async () => {
+        it('Validate Data Table Pagination', async () => {
             await PaginationPage.validatePagination();
         });
     });

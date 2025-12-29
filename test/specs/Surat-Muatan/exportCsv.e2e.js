@@ -16,7 +16,7 @@ describe('AT-CORE-0022', () => {
     describe('AT-CORE-0022-08', () => {
         
         // Export table to CSV
-        it('Export Table to CSV - Surat Muatan', async () => {
+        it('Export Filtered Column Table to CSV', async () => {
 
             await ColumnPage.openDropdown(); 
             

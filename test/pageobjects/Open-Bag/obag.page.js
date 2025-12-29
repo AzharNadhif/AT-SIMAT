@@ -45,16 +45,19 @@ class OpenBagPage {
         return $('input[data-testid="input-search"');
     }
 
+    // ===== helper: soft screenshot per failure (pakai checkAsync) =====
+    async softCheck(soft, label, fn) {
+        if (soft && typeof soft.checkAsync === 'function') {
+            return soft.checkAsync(label, fn);
+        }
+        return fn();
+    }
+
     async openBag(bagNo, soft = null){
         await this.inputItemCode.waitForDisplayed({ timeout: 5000 });
         await this.inputItemCode.click();
         await this.inputItemCode.setValue(bagNo);
         await browser.keys(['Enter']);
-
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
 
         // Tunggu tabel "Unbagged" muncul
         await this.unbaggedSection.waitForDisplayed({ timeout: 8000 });
@@ -66,23 +69,21 @@ class OpenBagPage {
         console.log(`Input Bag Number   : ${bagNo}`);
         console.log(`Displayed in Table : ${displayedBag}`);
 
-        await softCheck(`[Open Bag] Nomor Bag ${displayedBag}, tidak sesuai dengan input ${bagNo}`, async () => {
-            await expect(displayedBag).toContain(bagNo);
-        });
+        await this.softCheck(
+            soft,
+            `[Open Bag] Nomor Bag "${displayedBag}" tidak sesuai / tidak mengandung input "${bagNo}"`,
+            async () => {
+                expect(displayedBag).toContain(bagNo);
+            }
+        );
     }
 
     async openAddBag(bagNo, soft = null){
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
-
         await this.totalScan.waitForDisplayed({ timeout: 5000 });
         // Total Sebelum discan
         const totalScanned = await this.totalScan.getText();
         const totalScanBefore = parseInt(totalScanned.split(':').pop().trim(), 10);
         console.log(`Total sebelum discan : ${totalScanBefore}`);
-
 
         await this.inputItemCode.waitForDisplayed({ timeout: 5000 });
         await this.inputItemCode.click();
@@ -93,49 +94,62 @@ class OpenBagPage {
         const displayedItem = (await this.firstItemScannedCell.getText()).trim();
 
         // Log input dan hasil tabel
-        console.log(`Input Bag Number   : ${bagNo}`);
+        console.log(`Input Item Number   : ${bagNo}`);
         console.log(`Displayed in Table : ${displayedItem}`);
 
-        await softCheck(`[Open Bag] Nomor Item Scanned ${displayedItem} tetap muncul`, async () => {
-            await expect(displayedItem).not.toBeDisplayed();
-        });
+        // ✅ FIX: sebelumnya pakai expect(displayedItem).not.toBeDisplayed() (itu salah karena string)
+        // Kita cek element-nya yang tampil/masih ada.
+        const stillDisplayed = await this.firstItemScannedCell.isDisplayed();
+
+        await this.softCheck(
+            soft,
+            `[Open Add Bag] Item Scanned "${displayedItem}" masih muncul (expected: tidak tampil)`,
+            async () => {
+                expect(stillDisplayed).toBe(false);
+            }
+        );
 
         await browser.pause(500);
-       // Ambil text total setelah scan (kalau ada)
+
+        // Ambil text total setelah scan (kalau ada)
         const isTotalScanExisting = await this.totalScan.isExisting();
 
         if (isTotalScanExisting) {
-            // kalau element total scan masih ada
             const totalScannedAfter = await this.totalScan.getText();
             const totalScanAfter = parseInt(totalScannedAfter.split(':').pop().trim(), 10);
             console.log(`Total setelah discan : ${totalScanAfter}`);
 
-            // kalau data lebih dari 1
             if (totalScanBefore > 1) {
-                await softCheck(`[Open Add Bag] Validasi total scan berkurang`, () => {
-                    expect(totalScanAfter).toBeLessThan(totalScanBefore);
-                });
+                await this.softCheck(
+                    soft,
+                    `[Open Add Bag] Total scan tidak berkurang. Before=${totalScanBefore}, After=${totalScanAfter}`,
+                    async () => {
+                        expect(totalScanAfter).toBeLessThan(totalScanBefore);
+                    }
+                );
             } else {
                 console.log('Total scan masih ada padahal data = 1');
-                await softCheck(`[Open Add Bag] Elemen total scan harus hilang jika hanya 1 data`, async () => {
-                    expect(await this.totalScan.isDisplayed()).toBe(false);
-                });
+                await this.softCheck(
+                    soft,
+                    `[Open Add Bag] Elemen total scan harus hilang jika hanya 1 data (masih tampil)`,
+                    async () => {
+                        expect(await this.totalScan.isDisplayed()).toBe(false);
+                    }
+                );
             }
         } else {
-            // kalau element total scan udah hilang
             console.log('Elemen total scan sudah hilang dari halaman');
-            await softCheck(`[Open Add Bag] Validasi total scan hilang ketika hanya 1 data`, async () => {
-                expect(isTotalScanExisting).toBe(false);
-            });
-        }   
+            await this.softCheck(
+                soft,
+                `[Open Add Bag] Elemen total scan harus hilang (existing=false)`,
+                async () => {
+                    expect(isTotalScanExisting).toBe(false);
+                }
+            );
+        }
     }
 
     async validateOM(data, soft = null){
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
-
         await this.sidebarBtn.waitForDisplayed({ timeout: 5000 });
         await this.sidebarBtn.waitForClickable({ timeout: 5000 });
         await this.sidebarBtn.click();
@@ -159,13 +173,44 @@ class OpenBagPage {
         console.log(`Nomor Bag di table: ${text}`);
         console.log("Expected nomor Bag baris 1:", data);
 
-        await softCheck(`[Open Bag] Nomor Bag(${text}), Tidak Sesuai Input (${data})`, () => {
-            expect(text).toEqual(data);
-        });
+        await this.softCheck(
+            soft,
+            `[Open Bag] Nomor Bag("${text}") tidak sesuai input ("${data}")`,
+            async () => {
+                expect(text).toEqual(data);
+            }
+        );
     }
 
-   
+    async validateItemConnote(data, soft = null){
+        await this.sidebarBtn.waitForDisplayed({ timeout: 5000 });
+        await this.sidebarBtn.waitForClickable({ timeout: 5000 });
+        await this.sidebarBtn.click();
 
+        await this.inventory.waitForDisplayed({ timeout: 5000 });
+        await this.inventory.click();
+
+        await this.searchBag.waitForDisplayed({ timeout: 5000 });
+        await this.searchBag.click();
+        await this.searchBag.setValue(data);
+        await browser.keys(['Enter']);
+        
+        // Validate Number Item
+        const numberBag= await $('[data-testid^="data-koli_number"]');
+        await numberBag.waitForDisplayed({ timeout: 10000 });
+
+        const text = (await numberBag.getText()).trim();
+        console.log(`Nomor Item di table: ${text}`);
+        console.log("Expected nomor Item baris 1:", data);
+
+        await this.softCheck(
+            soft,
+            `[Open Bag] Nomor Item Connote("${text}") tidak sesuai input ("${data}")`,
+            async () => {
+                expect(text).toEqual(data);
+            }
+        );
+    }
 }
 
 export default new OpenBagPage();

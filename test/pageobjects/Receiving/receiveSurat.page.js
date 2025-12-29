@@ -47,31 +47,34 @@ class ReceivingSuratPage {
         return $('.bx.bx-search.search-input-icon')
     }
 
-    //  ===== ACTION RECEIVE SURAT MUATAN =======
+    // ===== helper: softCheck async (multi screenshot ready) =====
+    async softCheck(soft, title, fn) {
+        if (soft && typeof soft.checkAsync === 'function') {
+            return soft.checkAsync.call(soft, title, fn);
+        }
+        return fn();
+    }
+
+    // ===== ACTION RECEIVE SURAT MUATAN =======
 
     async receiveSurat(noSurat, noBag, soft = null) {
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
-
         await this.inputItem.waitForDisplayed({ timeout: 5000 });
         await this.inputItem.waitForClickable({ timeout: 5000 });
         await this.inputItem.click();
         await this.inputItem.setValue(noSurat);
-
         await browser.keys('Enter');
 
         await this.boxInformation.waitForDisplayed({ timeout: 5000 });
+
         // Validate Number Surat
-        const numberSurat= await this.boxInformation.$('tbody.vs-table__tbody tr:nth-child(1) td:nth-child(1) span');
+        const numberSurat = await this.boxInformation.$('tbody.vs-table__tbody tr:nth-child(1) td:nth-child(1) span');
         await numberSurat.waitForDisplayed({ timeout: 10000 });
 
         const text = (await numberSurat.getText()).trim();
         console.log(`Nomor surat di table: ${text}`);
         console.log("Expected nomor surat baris 1:", noSurat);
 
-        await softCheck(`[Receive Surat] Nomor Surat(${text}), Tidak Sesuai Input (${noSurat})`, () => {
+        await this.softCheck(soft, `[Receive Surat] Nomor Surat(${text}), Tidak Sesuai Input (${noSurat})`, async () => {
             expect(text).toEqual(noSurat);
         });
 
@@ -92,7 +95,7 @@ class ReceivingSuratPage {
         console.log(`Nomor bag di table: "${text2}"`);
         console.log("Expected nomor bag:", noBag);
 
-        await softCheck(`[Receive Surat(check bag number)] Nomor Bag(${text2}), Tidak Sesuai Input (${noBag})`, () => {
+        await this.softCheck(soft, `[Receive Surat(check bag number)] Nomor Bag(${text2}), Tidak Sesuai Input (${noBag})`, async () => {
             expect(text2).toEqual(noBag);
         });
 
@@ -103,22 +106,22 @@ class ReceivingSuratPage {
         await this.inputBag.setValue(noBag);
         await browser.keys('Enter');
 
-        // --- Tunggu perubahan kolom 5 jadi ceklis ---
+        // --- Tunggu perubahan kolom 6 jadi ceklis ---
         await browser.waitUntil(async () => {
             const icon = await tableDetail.$('tbody.vs-table__tbody tr:first-child td:nth-child(6) i');
             const cls = await icon.getAttribute('class');
             return cls.includes('bx-check');
         }, {
             timeout: 10000,
-            timeoutMsg: `Bag ${noBag} belum berubah menjadi ceklis di kolom 5`
+            timeoutMsg: `Bag ${noBag} belum berubah menjadi ceklis di kolom 6`
         });
 
         // --- Validasi final ---
         const iconElement = await tableDetail.$('tbody.vs-table__tbody tr:first-child td:nth-child(6) i');
         const iconClass = await iconElement.getAttribute('class');
-        console.log(`Status Bag ${noBag} di kolom 5:`, iconClass.includes('bx-check') ? ' Ceklis' : 'Belum receive');
+        console.log(`Status Bag ${noBag} di kolom 6:`, iconClass.includes('bx-check') ? '✅ Ceklis' : '❌ Belum receive');
 
-        await softCheck(`[Receive Surat] Status bag tidak berubah`, () => {
+        await this.softCheck(soft, `[Receive Surat] Status bag tidak berubah`, async () => {
             expect(iconClass.includes('bx-check')).toBe(true);
         });
     }
@@ -129,23 +132,19 @@ class ReceivingSuratPage {
         await this.inputSearch.setValue(noBag);
         await this.searchButton.waitForDisplayed({ timeout: 5000});
         await this.searchButton.click();
-        
         await browser.pause(3000);
 
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
-
-        // Ambil nilai di baris  pertama kolom pertama
+        // Ambil nilai di baris pertama kolom pertama
         const firstCell = await $('(//table//tr[1]//td[1]//span[@class="text-link"])[1]');
         await firstCell.waitForDisplayed({ timeout: 5000 });
         const num = await firstCell.getText();
+
         console.log(` Nomor Masterbag di tabel: ${num}`);
         console.log(` Nomor Masterbag di input: ${noBag}`);
+
         const normalize = str => decodeURIComponent(str).replace(/\\/g, '/').trim();
-        // Validasi: pastikan nomor di tabel = nomor di input
-        await softCheck(`[Receive Surat] Nomor masterbag di tabel ${num}, tidak sesuai dengan input ${noBag}`, () => {
+
+        await this.softCheck(soft, `[Receive Surat] Nomor masterbag di tabel ${num}, tidak sesuai dengan input ${noBag}`, async () => {
             expect(normalize(noBag)).toBe(normalize(num));
         });
     }

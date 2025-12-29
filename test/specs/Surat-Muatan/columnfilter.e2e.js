@@ -10,7 +10,7 @@ describe('AT-CORE-0022', () => {
 
     describe('AT-CORE-0022-02', () => {
         // Hide Some Columns
-        it('Hide columns Created Date & Created By', async () => {
+        it('Filter Table Columns', async () => {
            await ColumnPage.openDropdown();
 
             await ColumnPage.CheckboxByTestId('created_at', false);

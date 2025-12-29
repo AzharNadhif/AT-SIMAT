@@ -8,7 +8,7 @@ import SoftError from '../../helpers/softerror.js';
 
 describe('AT-CORE-0038', () => {
 
-    describe('AT-CORE-0038 (01-02)', async () => {
+    describe('AT-CORE-0038-01-02', async () => {
         it('Create Surat Jalan - DO', async () => {
             const soft = new SoftError();
             

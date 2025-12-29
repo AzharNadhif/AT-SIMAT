@@ -6,8 +6,8 @@ import SoftError from '../../helpers/softerror.js';
 
 describe('AT-CORE-0030', () => {
 
-    describe('AT-CORE-0030 (01-04)', async () => {
-        it('Create Surat Muatan - Udara', async () => {
+    describe('AT-CORE-0030-01-04', async () => {
+        it('Create Surat Muatan Udara', async () => {
             const soft = new SoftError();
             
              // Create Connote Pertama

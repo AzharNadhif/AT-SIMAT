@@ -12,7 +12,7 @@ describe('AT-CORE-0014', () => {
 
     describe('AT-CORE-0014-04', () => {
         // Cek tidak ada column Id di table header
-        it('should not have an ID column in the table headers', async () => {
+        it('Validate ID Column is Not Displayed', async () => {
             const headers = await TableValidationPage.getTableHeaders();
             console.log('Headers:', headers); // cek dulu isi array
             // normalisasi penulisan id

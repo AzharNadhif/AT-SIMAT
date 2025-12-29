@@ -10,7 +10,7 @@ describe('AT-CORE-0014', () => {
 
 
     describe('AT-CORE-0014-03', () => {
-       it('Validate table headers - no typos', async () => {
+       it('Validate Table Header Wording', async () => {
             const expectedHeaders = [
                 "Connote Number", 
                 "Origin", 

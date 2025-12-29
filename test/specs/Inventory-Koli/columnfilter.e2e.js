@@ -10,7 +10,7 @@ describe('AT-CORE-0013', () => {
 
     describe('AT-CORE-0013-02', () => {
         // Hide Some Columns
-        it('Hide columns Koli Number & Bag', async () => {
+        it('Filter Table Columns', async () => {
            await ColumnPage.openDropdown();
 
             await ColumnPage.CheckboxByTestId('koli_number', false);

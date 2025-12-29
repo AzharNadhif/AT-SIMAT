@@ -16,7 +16,7 @@ describe('AT-CORE-0013', () => {
     describe('AT-CORE-0013-08', () => {
         
         // Export table to CSV
-        it('Export Table to CSV - Inventory Koli', async () => {
+        it('Export Filtered Column Table to CSV', async () => {
 
             await ColumnPage.openDropdown(); 
             

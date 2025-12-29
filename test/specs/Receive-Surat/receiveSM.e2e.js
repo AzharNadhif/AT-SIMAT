@@ -6,7 +6,7 @@ import ReceiveSuratPage from '../../pageobjects/Receiving/receiveSurat.page.js';
 import SoftError from '../../helpers/softerror.js';
 
 describe('AT-CORE-0035', () => {
-    describe('AT-CORE-0035 (01-02)', async () => {
+    describe('AT-CORE-0035-01-02', async () => {
         it('Receiving Surat Muatan', async () => {
             const soft = new SoftError();
             

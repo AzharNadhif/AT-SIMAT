@@ -28,19 +28,26 @@ class ReceivingPage {
 
     // table kedua
     get secondTable() {
-    return $$("div.vs-table-content")[1]; 
+        return $$("div.vs-table-content")[1]; 
     }
 
     // cell "No item."
     get noItemCell() {
-    return this.secondTable.$("tbody.vs-table__tbody tr td:nth-child(1) span");
+        return this.secondTable.$("tbody.vs-table__tbody tr td:nth-child(1) span");
     }
 
     // cell "Status receiving" -> button check
     get statusReceivingCheck() {
-    return this.secondTable.$("tbody.vs-table__tbody tr td:nth-child(6) button i.bx-check");
+        return this.secondTable.$("tbody.vs-table__tbody tr td:nth-child(6) button i.bx-check");
     }
 
+    // ===== helper: softCheck async (multi screenshot ready) =====
+    async softCheck(soft, label, fn) {
+        if (soft && typeof soft.checkAsync === 'function') {
+            return soft.checkAsync(label, fn);
+        }
+        return fn();
+    }
 
     // ====== ACTION RECEIVE KOLI ======
     async receivingKoli(data){
@@ -67,13 +74,8 @@ class ReceivingPage {
         await browser.keys('Enter');
     }
 
-    // Validate Received Connote
+    // ===== Validate Received Connote =====
     async validateReceivedConnote(expectedConnote, soft = null) {
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
-
         // tunggu no item muncul
         await this.noItemCell.waitForDisplayed({ timeout: 10000 });
 
@@ -83,25 +85,21 @@ class ReceivingPage {
         console.log("No item text dari table:", noItemText);
         console.log("Expected connote number:", expectedConnote);
 
-        await softCheck(`No Item equal to Expected Koli Number`, () => {
+        await this.softCheck(soft, `No Item equal to Expected Koli Number`, async () => {
             expect(noItemText).toEqual(expectedConnote);
         });
 
         // validasi status receiving ada icon check
         await this.statusReceivingCheck.waitForDisplayed({ timeout: 5000 });
         const isDisplayed = await this.statusReceivingCheck.isDisplayed();
-        await softCheck(`Status Receiving`, () => {
+
+        await this.softCheck(soft, `Status Receiving`, async () => {
             expect(isDisplayed).toBe(true);
         });
     }
 
-    // Validate Inventory Koli -> Connote Number + COD
+    // ===== Validate Inventory Koli -> Connote Number + COD =====
     async validateInventoryConnote(data, testData, soft = null) {
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
-        
         await this.searchConnote.waitForDisplayed({ timeout: 5000 });
         await this.searchConnote.setValue(data);
 
@@ -127,14 +125,16 @@ class ReceivingPage {
         console.log("Amount COD column:", amountCod);
 
         // Assertion
-        await softCheck(`Koli Number equal to expected`, () => {
+        await this.softCheck(soft, `Koli Number equal to expected`, async () => {
             expect(koliNumber).toEqual(data);
         });
-        await softCheck(`COD`, () => {
+
+        await this.softCheck(soft, `COD`, async () => {
             expect(cod).toEqual('YES');
         });
-        await softCheck(`Amount COD`, () => {
-            expect(amountCod.replace(/,/g, '')).toEqual(testData.cod.toString()); 
+
+        await this.softCheck(soft, `Amount COD`, async () => {
+            expect(amountCod.replace(/,/g, '')).toEqual(testData.cod.toString());
         });
     }
 }

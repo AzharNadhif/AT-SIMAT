@@ -13,7 +13,7 @@ describe('AT-CORE-0014', () => {
 
     describe('AT-CORE-0014-01', () => {
 
-        it('Read Inventory Connote in Table Search List', async() => {
+        it('Read Inventory Connote', async() => {
             const tests = [
                 { index: 1, value:'BDO/SUB/1758105018862' }, // Bag (expand)
                 { index: 2, value:'BDO10000'},              // Origin (main)
@@ -79,11 +79,8 @@ describe('AT-CORE-0014', () => {
 
             // Validasi total data sesuai row
             await TotalColumnPage.validateTotalMatchesRows();
-        });
 
-
-
-        it('Validate Filter Connote Status ', async () => {
+        // Validate Filter Connote Status
             await browser.refresh();
             await InventoryPage.btnConnote.waitForClickable({timeout:5000});
             await InventoryPage.btnConnote.click();
@@ -97,9 +94,8 @@ describe('AT-CORE-0014', () => {
                 await InventoryPage.selectBagStatusByIndex(index);
                 await InventoryPage.validateBagColumnConnote(expected);
             }
-        });
 
-        it('Validate Inventory Connote Status', async () => { // Berhasil
+            // Validate Inventory Connote Status
             // await browser.refresh();
             const InvStatuses = [
                 { index: 1, expected: 'Confirmed' },
@@ -111,9 +107,8 @@ describe('AT-CORE-0014', () => {
                 await InventoryPage.selectInventoryStatus(index);
                 await InventoryPage.validateStatusColumnConnote(expected);
             }
-        });
         
-        it('Validate Date Range + Filter Date', async () => {
+            // Validate Date Range + Filter Date
             const startDate = "2025-09-01";
             const endDate   = "2025-09-30";
 
@@ -170,8 +165,6 @@ describe('AT-CORE-0014', () => {
                     expect(cellDate <= endDateObj).toBe(true);
                 }
             }
-
-
         });
 
 

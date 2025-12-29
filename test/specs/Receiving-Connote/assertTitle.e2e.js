@@ -8,8 +8,8 @@ describe('AT-CORE-0015', () => {
         await NavigationFlow.loginAndNavigateToIncoming();
     });
 
-    describe('Assert Page Title', () => {
-        it('Check Title on Bag Weight Page', async () => {
+    describe('AT-CORE-0015-04', () => {
+        it('Assert Page Title', async () => {
             await ReceivingPage.pageTitle.waitForDisplayed({ timeout: 5000 });    // memastikan halaman sudah dimuat
             expect(await ReceivingPage.pageTitle.getText()).toContain('Pre-Alert');
         });

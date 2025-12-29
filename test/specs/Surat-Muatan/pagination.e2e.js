@@ -10,8 +10,8 @@ describe('AT-CORE-0022', () => {
         await NavigationFlow.loginAndNavigateToSuratMuatan();
     });
 
-    describe('AT-CORE-0018-07', () => {
-        it('should validate pagination behavior', async () => {
+    describe('AT-CORE-0022-07', () => {
+        it('Validate Data Table Pagination', async () => {
             await PaginationPage.validatePagination();
         });
     });

@@ -5,8 +5,8 @@ import SoftError from '../../helpers/softerror.js';
 
 describe('AT-CORE-0027', () => {
 
-    describe('AT-CORE-0027 (01-06)', async () => {
-        it('Outgoing HVO Bag', async () => {
+    describe('AT-CORE-0027-01-06', async () => {
+        it('Create Bag HVO', async () => {
             const soft = new SoftError();
             
             // Create Connote Pertama

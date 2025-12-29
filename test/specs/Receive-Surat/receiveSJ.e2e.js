@@ -8,7 +8,7 @@ import SoftError from '../../helpers/softerror.js';
 
 describe('AT-CORE-0040', () => {
 
-    describe('AT-CORE-0040 (01-02)', async () => {
+    describe('AT-CORE-0040-01-02', async () => {
         it('Receiving Surat Jalan', async () => {
             const soft = new SoftError();
             
@@ -83,7 +83,7 @@ describe('AT-CORE-0040', () => {
 
             // RECEIVE SJ
             await NavigationFlow.loginAndNavigateToIncomingJOG();
-            await browser.pause(7000);
+            await browser.pause(3000);
             await ReceiveSuratPage.tabSJ.waitForDisplayed({ timeout: 5000 });
             await ReceiveSuratPage.tabSJ.waitForClickable({ timeout: 5000 });
             await ReceiveSuratPage.tabSJ.click();

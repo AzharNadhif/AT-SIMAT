@@ -7,16 +7,17 @@ describe('AT-CORE-0014', () => {
         // Login dan juga flow
         await NavigationFlow.loginAndNavigateToInventoryConnote();
     });
-    describe('Assert Page Title', () => {
-        it('Check Title on Inventory Connote Page', async () => {
+
+    describe('AT-CORE-0014-09', () => {
+        it('Assert Page Title', async () => {
             await InventoryPage.pageTitle.waitForDisplayed({ timeout: 5000 });    // memastikan halaman sudah dimuat
             expect(await InventoryPage.pageTitle.getText()).toContain('Connote');
         });
     });
+
     after(async () => { 
         console.log('Test suite completed');
     });
-
 });
 
     

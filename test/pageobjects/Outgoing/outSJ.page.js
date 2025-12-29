@@ -1,4 +1,4 @@
-import { $, $$, browser } from '@wdio/globals';
+import { $, $$, browser, expect } from '@wdio/globals';
 
 class OutSJPage {
     get pageTitle(){
@@ -57,7 +57,6 @@ class OutSJPage {
         return $('input[data-testid="input-search"]');
     }
 
-
     async createSJ(noBag, moda, driver, soft = null) {
         await this.buttonNew.waitForDisplayed({ timeout: 5000 });
         await this.buttonNew.waitForClickable({ timeout: 5000 });
@@ -72,6 +71,11 @@ class OutSJPage {
         await this.inputScan.setValue(noBag);
         await browser.keys(['Enter']);
 
+        const softCheck = async (title, fn) => {
+            if (soft && typeof soft.checkAsync === 'function') return soft.checkAsync.call(soft, title, fn);
+            return fn();
+        };
+
         // Validate NumberBag
         const numberBag = this.firstElem;
         await numberBag.scrollIntoView();
@@ -81,16 +85,11 @@ class OutSJPage {
         console.log(`Nomor bag baris 1: "${text}"`);
         console.log("Expected nomor bag baris 1:", noBag);
 
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
-
-        await softCheck(`[Create SJ] nomor bag baris ke-1 (${text}), Tidak Sesuai Input (${noBag})`, () => {
+        await softCheck(`[Create SJ] nomor bag baris ke-1 (${text}), Tidak Sesuai Input (${noBag})`, async () => {
             expect(text).toEqual(noBag);
         });
 
-        await browser.pause (500);
+        await browser.pause(500);
 
         await this.selectModa.waitForDisplayed({ timeout: 5000 });
         await this.selectModa.waitForClickable({ timeout: 5000 });
@@ -125,7 +124,6 @@ class OutSJPage {
         await browser.keys('Enter');
         console.log(`Nomor Surat Jalan dicari: ${sjNumber}`);
 
-        // https://core-staging.jne.co.id/print/SJ-1762158286400/manifest-delivery-order/84186
         // Klik Depart
         await browser.pause(5000);
         await this.btnDepart.waitForDisplayed({ timeout: 5000 });
@@ -134,13 +132,24 @@ class OutSJPage {
 
         await browser.waitUntil(async () => (await browser.getWindowHandles()).length > 1, {
             timeout: 10000,
-            timeoutMsg: 'Tab print tidak muncul setelah klik print.',
+            timeoutMsg: 'Tab print tidak muncul setelah klik depart.',
         });
 
         const mainHandle = await browser.getWindowHandle();
         const handles = await browser.getWindowHandles();
         const printHandle = handles.find(h => h !== mainHandle);
         await browser.switchToWindow(printHandle);
+
+        await browser.closeWindow();
+        await browser.switchToWindow(mainHandle);
+
+        await browser.pause(5000);
+
+        // Klik tombol Print
+        const btnPrint = await $('button[data-testid="print-button-0"]');
+        await btnPrint.waitForDisplayed({ timeout: 5000 });
+        await btnPrint.waitForClickable({ timeout: 5000 });
+        await btnPrint.click();
 
         // Tunggu tab print baru muncul
         await browser.waitUntil(async () => (await browser.getWindowHandles()).length > 1, {
@@ -173,25 +182,24 @@ class OutSJPage {
         const normalize = str => decodeURIComponent(str).replace(/\\/g, '/').trim();
 
         // Validasi: pastikan nomor di tabel = nomor di url print
-        await softCheck(`[Create SJ] Nomor surat jalan di URL print ${printedSJ}, tidak sesuai dengan input ${sjNumber}`, () => {
+        await softCheck(`[Create SJ] Nomor surat jalan di URL print ${printedSJ}, tidak sesuai dengan input ${sjNumber}`, async () => {
             expect(normalize(printedSJ)).toBe(normalize(sjNumber));
         }); 
-        console.log(`Nomor Surat Jalan pada halaman print sesuai: ${normalize(printedSJ)}, dengan yang ada di URL ${normalize(sjNumber)}`);
 
+        console.log(`Nomor Surat Jalan pada halaman print sesuai: ${normalize(printedSJ)}, dengan yang ada di URL ${normalize(sjNumber)}`);
 
         // Tutup tab print
         await browser.closeWindow();
 
         // Kembali ke tab utama
         await browser.switchToWindow(mainHandle);
+
         console.log('DEBUG: noBag =', noBag);
         console.log('DEBUG: moda =', moda);
         console.log('DEBUG: driver =', driver);
-    
-        return { sjNumber };
 
+        return { sjNumber };
     }
-    
 }
 
 export default new OutSJPage();

@@ -10,7 +10,7 @@ describe('AT-CORE-0014', () => {
 
     describe('AT-CORE-0014-02', () => {
         // Hide Some Columns
-        it('Hide columns Origin & Destination', async () => {
+        it('Filter Table Columns', async () => {
            await ColumnPage.openDropdown();
 
             await ColumnPage.CheckboxByTestId('connote_shipper_tariff_code', false);

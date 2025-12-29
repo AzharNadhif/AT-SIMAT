@@ -10,7 +10,7 @@ describe('AT-CORE-0013', () => {
 
 
     describe('AT-CORE-0013-03', () => {
-       it('Validate table headers - no typos', async () => {
+       it('Validate Table Header Wording', async () => {
             const expectedHeaders = [
                 "Koli Number",
                 "Bag",

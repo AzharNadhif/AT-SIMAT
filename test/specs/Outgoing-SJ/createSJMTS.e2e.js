@@ -9,7 +9,7 @@ import SoftError from '../../helpers/softerror.js';
 
 describe('AT-CORE-0039', () => {
 
-    describe('AT-CORE-0039 (01-02)', async () => {
+    describe('AT-CORE-0039-01-02', async () => {
         it('Create Surat Jalan - MTS', async () => {
             const soft = new SoftError();
             
@@ -68,8 +68,10 @@ describe('AT-CORE-0039', () => {
             // Open Bag
             await NavigationFlow.loginAndNavigateToSortingOpenBag();
             await obagPage.openBag(bagNumber, soft);
+            await obagPage.openAddBag(generatedConnoteNumber, soft);
+
             // VALIDASI OM
-            await obagPage.validateOM(bagNumber, soft);
+            await obagPage.validateItemConnote(generatedConnoteNumber, soft);
             await NavigationFlow.logout();
 
             // Create SJ

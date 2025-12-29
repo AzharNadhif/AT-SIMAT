@@ -1,7 +1,6 @@
 import { $, $$, browser, expect } from '@wdio/globals';
 
 class SuratMuatanPage {
-
     get tabSM() {
         return $('a[href="/outgoing/surat-muatan"]');
     }
@@ -10,12 +9,12 @@ class SuratMuatanPage {
         return $('h2=Surat Muatan');
     }
 
-    get searchBy(){
+    get searchBy() {
         return $('div[data-testid="select-search-by"]');
     }
 
     get searchButton() {
-        return $('.bx.bx-search.search-input-icon')
+        return $('.bx.bx-search.search-input-icon');
     }
 
     get searchInput() {
@@ -41,32 +40,32 @@ class SuratMuatanPage {
     get dateEndInput() {
         return this.date.$$('input.el-range-input')[1];
     }
+
     // button OK Date
     get btnOK() {
-        return  $("//button[contains(@class,'el-picker-panel__link-btn')]//span[normalize-space()='OK']");
+        return $("//button[contains(@class,'el-picker-panel__link-btn')]//span[normalize-space()='OK']");
     }
 
     get btnPrint() {
         return $('button[data-testid="print-button-1"]');
-    }    
+    }
 
     // ==== ACTION SURAT MUATAN PAGE ====
 
     // Dropdown option
-    getColumnDropdown(testId){
+    getColumnDropdown(testId) {
         return $(`div[data-testid="select-${testId}"]`);
     }
 
     // Ambil ikon dropdown arrow
-    getDropdownArrow(dropdown){
+    getDropdownArrow(dropdown) {
         return dropdown.$('i.vs-icon-arrow');
     }
 
     // Ambil semua opsi
-    async getDropdownOptions(){
+    async getDropdownOptions() {
         return await this.searchOption.$$('.vs-select__option');
     }
-
 
     // Open dropdown
     async openDropdownFilter(testId, optionText = null) {
@@ -144,7 +143,7 @@ class SuratMuatanPage {
         for (let i = 0; i < options.length; i++) {
             optionTexts.push((await options[i].getText()).trim());
         }
-        console.log('>> Search options (index:text):', optionTexts.map((t,i)=> `${i}:${t}`).join(' | '));
+        console.log('>> Search options (index:text):', optionTexts.map((t, i) => `${i}:${t}`).join(' | '));
 
         // klik opsi sesuai index
         await options[indexSearch].waitForClickable({ timeout: 50000 });
@@ -167,18 +166,16 @@ class SuratMuatanPage {
         await this.searchButton.waitForClickable({ timeout: 5000 });
         await this.searchButton.click();
 
-        // tunggu table ter-refresh (minimal ada row) — safer than fixed pause
+        // tunggu table ter-refresh (minimal ada row)
         await browser.waitUntil(async () => {
             const rows = await $$('table tbody tr');
             return rows.length > 0;
         }, { timeout: 7000, timeoutMsg: 'No rows after search (waitUntil timed out).' });
 
-        // beri waktu render kecil
         await browser.pause(300);
     }
 
-    // ===== Read Date time Inventory
-    // Select By Date
+    // ===== Read Date time Inventory =====
     async selectByDate(index) {
         await this.selectSearchByDate.waitForDisplayed({ timeout: 5000 });
         await this.selectSearchByDate.waitForClickable({ timeout: 5000 });
@@ -199,35 +196,31 @@ class SuratMuatanPage {
 
         await browser.pause(500);
     }
-    // Date filter
+
     async applyDateFilterAndValidateMultipleBag({ start, end, scenarios }) {
         const results = [];
 
         for (const sc of scenarios) {
-            // 1. Pilih filter by index
             await this.selectByDate(sc.filterIndex);
 
-            // 2. Input range tanggal
             await this.dateStartInput.waitForDisplayed({ timeout: 5000 });
             await this.dateStartInput.click();
             await browser.pause(500);
 
             await browser.execute((start, end) => {
                 const startInput = document.querySelector('input[placeholder="Start Date"]');
-                const endInput   = document.querySelector('input[placeholder="End Date"]');
+                const endInput = document.querySelector('input[placeholder="End Date"]');
                 if (!startInput || !endInput) throw new Error('Input date tidak ditemukan!');
                 startInput.value = start;
-                endInput.value   = end;
+                endInput.value = end;
                 startInput.dispatchEvent(new Event('input', { bubbles: true }));
                 endInput.dispatchEvent(new Event('input', { bubbles: true }));
             }, start, end);
 
-            // 3. Klik tombol OK
             await this.btnOK.waitForClickable({ timeout: 5000 });
             await this.btnOK.click();
             await browser.pause(1000);
 
-            // 4. Cek apakah tabel berisi pesan "No matching records found"
             const firstCell = await $('table tbody tr td');
             const firstText = await firstCell.getText();
 
@@ -235,16 +228,13 @@ class SuratMuatanPage {
 
             if (firstText.includes('No matching records found')) {
                 values = ['No matching records found'];
-                // console.log(`Filter index ${sc.filterIndex}, kolom ${sc.expectedColumn}: Tidak ada data (${start} s/d ${end})`);
             } else {
-                // 5. Kalau ada data, ambil semua isi kolom
                 const rows = await $$(`table tbody tr td:nth-child(${sc.expectedColumn})`);
                 for (const r of rows) {
                     values.push((await r.getText()).trim());
                 }
             }
 
-            // Simpan hasil ke array
             results.push({
                 filterIndex: sc.filterIndex,
                 expectedColumn: sc.expectedColumn,
@@ -252,7 +242,6 @@ class SuratMuatanPage {
             });
         }
 
-        // 6. Tampilkan rekap semua hasil di akhir (biar di Allure dan log kelihatan rapi)
         console.log('\n Rekap Hasil Filter Tanggal:');
         for (const r of results) {
             console.log(`Filter index ${r.filterIndex} | Kolom ${r.expectedColumn} | Total data: ${r.values.length}`);
@@ -266,35 +255,33 @@ class SuratMuatanPage {
         return results;
     }
 
-    // Check Print
-    async checkPrint() {
-        // Ambil nilai SM dari tabel (kolom pertama baris pertama)
+    async checkPrint(soft = null) {
+        const softCheck = async (label, fn) => {
+            if (soft?.checkAsync) return soft.checkAsync(label, fn);
+            return fn();
+        };
+
         const firstRowCell = await $('table tbody tr:first-child td:nth-child(1)');
         await firstRowCell.waitForDisplayed({ timeout: 10000 });
-        
-        const SMNumber = await firstRowCell.getText();
+
+        const SMNumber = (await firstRowCell.getText()).trim();
         console.log(`Nomor SM ditemukan di tabel: "${SMNumber}"`);
 
-        // Klik tombol Print
         await this.btnPrint.waitForDisplayed({ timeout: 5000 });
         await this.btnPrint.waitForClickable({ timeout: 5000 });
         await this.btnPrint.click();
 
-        // Simpan handle utama
         const mainHandle = await browser.getWindowHandle();
 
-        // Tunggu tab baru terbuka
         await browser.waitUntil(async () => (await browser.getWindowHandles()).length > 1, {
             timeout: 15000,
             timeoutMsg: 'Tab print tidak terbuka.',
         });
 
-        // Pindah ke tab print
         const handles = await browser.getWindowHandles();
         const printHandle = handles.find(h => h !== mainHandle);
         await browser.switchToWindow(printHandle);
 
-        // Tunggu URL print muncul
         await browser.waitUntil(async () => {
             const url = await browser.getUrl();
             return url.includes('print/');
@@ -306,25 +293,20 @@ class SuratMuatanPage {
         const currentUrl = await browser.getUrl();
         console.log(`URL print terdeteksi: ${currentUrl}`);
 
-        // Ambil nomor SM dari URL
-        // Misal URL: https://core-staging.jne.co.id/print/SMXXXXXXXXXXXXXX
         const urlParts = currentUrl.split('/');
-        // Surat Muatan di index ke-4
-        let urlSuratMuatan = decodeURIComponent(urlParts[5]);
+        const urlSuratMuatan = decodeURIComponent(urlParts[5] || '');
         console.log(`Nomor SM dari URL: ${urlSuratMuatan}`);
 
-        // Validasi terhadap tabel
-        expect(urlSuratMuatan).toContain(SMNumber);
-        console.log('Nomor SM pada halaman print sesuai dengan tabel.');
+        await softCheck(
+            `[Print SM] Nomor SM di URL (${urlSuratMuatan}) harus mengandung SMNumber tabel (${SMNumber})`,
+            async () => {
+                await expect(urlSuratMuatan).toContain(SMNumber);
+            }
+        );
 
-        // Tutup tab print dan kembali ke tab utama
         await browser.closeWindow();
         await browser.switchToWindow(mainHandle);
     }
-
-
-
-
 }
 
 export default new SuratMuatanPage();

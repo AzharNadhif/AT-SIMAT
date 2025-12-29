@@ -500,8 +500,8 @@ class OutSMPage {
 
          await browser.keys(['Enter']);
 
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
+        const softCheck = async (label, fn) => {
+            if (soft?.checkAsync) return soft.checkAsync(label, fn);
             return fn();
         };
 
@@ -528,8 +528,8 @@ class OutSMPage {
 
         await browser.keys(['Enter']);
 
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
+        const softCheck = async (label, fn) => {
+            if (soft?.checkAsync) return soft.checkAsync(label, fn);
             return fn();
         };
 
@@ -547,8 +547,8 @@ class OutSMPage {
     }
 
     async approveSM(soft = null){
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
+        const softCheck = async (label, fn) => {
+            if (soft?.checkAsync) return soft.checkAsync(label, fn);
             return fn();
         };
 
@@ -580,14 +580,21 @@ class OutSMPage {
         await browser.switchToWindow(mainHandle);
 
         // === BALIK KE TAB UTAMA ===
-
-        // Tutup modal
-        const btnCloseModal = $('button.vs-dialog__close');
-        await btnCloseModal.waitForDisplayed({ timeout: 5000 });
-        await btnCloseModal.click();
-
         await browser.pause(1000);
 
+        // Tutup modal
+        const closeBtn = await this.modalTitleCreateSM.$('button.vs-dialog__close');
+        await closeBtn.waitForDisplayed({ timeout: 5000 });
+        await closeBtn.scrollIntoView();
+        await closeBtn.waitForClickable({ timeout: 5000 });
+
+        // coba klik normal
+        await closeBtn.click();
+
+        // validasi: tombol close hilang (indikasi modal sudah ketutup)
+        await this.modalTitleCreateSM.waitForDisplayed({ reverse: true, timeout: 5000 });
+
+        await browser.pause(1000);
         
         // Ambil nilai di baris pertama kolom pertama
         const firstCell = await $('(//table//tr[1]//td[1]//span[@class="text-link"])[1]');
@@ -599,7 +606,7 @@ class OutSMPage {
         await firstCell.click();
 
         // Klik tombol Print
-        const btnPrint = await $('button[data-testid="print-button"]');
+        const btnPrint = await this.modalTitleCreateSM.$('button[data-testid="print-button"]');
         await btnPrint.waitForDisplayed({ timeout: 5000 });
         await btnPrint.waitForClickable({ timeout: 5000 });
         await btnPrint.click();
@@ -640,16 +647,16 @@ class OutSMPage {
         });
         console.log(`Nomor Surat Muatan pada halaman print sesuai: ${normalize(printedSM)}, dengan yang ada di URL ${normalize(smNumber)}`);
 
-
         // Tutup tab print
         await browser.closeWindow();
 
         // Kembali ke tab utama
         await browser.switchToWindow(mainHandle);
 
-        await btnCloseModal.waitForDisplayed({ timeout: 5000 });
-        await btnCloseModal.waitForClickable({ timeout: 5000 });
-        await btnCloseModal.click();
+        const closeBtn2 = await this.modalTitleCreateSM.$('button.vs-dialog__close');
+        await closeBtn2.waitForDisplayed({ timeout: 5000 });
+        await closeBtn2.waitForClickable({ timeout: 5000 });
+        await closeBtn2.click();
         
         return { smNumber };   
     }
@@ -661,8 +668,8 @@ class OutSMPage {
         await browser.keys(['Enter']);
         await browser.pause(3000);
 
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
+        const softCheck = async (label, fn) => {
+            if (soft?.checkAsync) return soft.checkAsync(label, fn);
             return fn();
         };
 

@@ -14,7 +14,7 @@ describe('AT-CORE-0013', () => {
 
     describe('AT-CORE-0013-01', () => {
         
-        it('Read Inventory Koli in Table Search List', async() => {
+        it('Read Inventory Koli', async() => {
             const tests = [
                 { index: 1, value:'BDO/SUB/1758105018862 ' }, // Bag
                 { index: 0, value:'060841872652000300 ' }, // Koli
@@ -49,9 +49,8 @@ describe('AT-CORE-0013', () => {
             // Validasi total data sesuai row
             await TotalColumnPage.validateTotalMatchesRows();
 
-        });
-
-        it('Validate filter Bag Status ', async () => {
+        
+            // Validate filter Bag Status 
             await browser.refresh();
             const bagStatuses = [
                 { index: 1, expected: 'Is In Bag' },
@@ -63,9 +62,8 @@ describe('AT-CORE-0013', () => {
                 await InventoryPage.selectBagStatusByIndex(index);
                 await InventoryPage.validateBagColumn(expected);
             }
-        });
 
-        it('Validate Inventory Koli Status', async () => {
+            // Validate Inventory Koli Status
             // await browser.refresh();
             const InvStatuses = [
                 { index: 1, expected: 'Confirmed' },
@@ -77,9 +75,8 @@ describe('AT-CORE-0013', () => {
                 await InventoryPage.selectInventoryStatus(index);
                 await InventoryPage.validateStatusColumn(expected);
             }
-        });
             
-        it('Validate Date Range + Filter Date', async () => {
+            // Validate Date Range + Filter Date
             const startDate = "2025-09-01";
             const endDate   = "2025-09-30";
 
@@ -111,6 +108,7 @@ describe('AT-CORE-0013', () => {
             }
         });
     });
+    
     after(async () => { 
         console.log('Test suite completed');
     });

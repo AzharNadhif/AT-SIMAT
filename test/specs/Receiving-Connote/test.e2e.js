@@ -11,8 +11,8 @@ describe('AT-CORE-0015', () => {
     let testData;
     let generatedConnoteNumber;
 
-    describe('AT-CORE-0015-01-02-03', () => {
-        it('Create Connote Service COD', async() => {
+    describe('AT-CORE-0015-01-03', () => {
+        it('Receiving Connote', async() => {
             const soft = new SoftError();
 
             await NavigationFlow.loginAndNavigateToNewTransaction();
@@ -59,13 +59,14 @@ describe('AT-CORE-0015', () => {
             const {jumlahConnote, jumlahKoli} = await ConnotePage.validateSummaryTransaction({
                 expectedConnote: 1,
                 expectedKoli: 1,
-                mode: 'exact'
+                mode: 'exact',
+                soft
             });
 
-            soft.check('Jumlah Connote', () => {
+            soft.checkAsync('Jumlah Connote', () => {
                 expect(jumlahConnote).toBe(1);
             });
-            soft.check('Jumlah Koli', () => {
+            soft.checkAsync('Jumlah Koli', () => {
                 expect(jumlahKoli).toBe(1);
             });
 
@@ -87,7 +88,7 @@ describe('AT-CORE-0015', () => {
             await ConnotePrintPage.closePrintWindow(main);
 
             // ====== THANK YOU PAGE ======
-            await ConnotePage.validateThankYouPage();
+            await ConnotePage.validateThankYouPage(soft);
             await NavigationFlow.logout();
             
             await NavigationFlow.loginAndNavigateToIncoming();

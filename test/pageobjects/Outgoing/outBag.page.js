@@ -1,4 +1,4 @@
-import { $, $$, browser } from '@wdio/globals';
+import { $, $$, browser, expect } from '@wdio/globals';
 
 class OutBagPage {
     get pageTitle() {
@@ -54,6 +54,14 @@ class OutBagPage {
         return $('div[data-testid="checkbox-validate_hub_delivery"]');
     }
 
+    // ===== helper: soft assertion (async-safe) =====
+    async softCheck(soft, label, fn) {
+        if (soft && typeof soft.checkAsync === 'function') {
+            return soft.checkAsync(label, fn);
+        }
+        // fallback: hard assert
+        return fn();
+    }
 
     async createbag(testId, number, destination, soft = null) {
         const categoryBag = this.getBagCategory(testId);
@@ -86,11 +94,6 @@ class OutBagPage {
             console.log('Destination sudah ada, skip input destination.');
         }
 
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
-
         try {
             await this.uncheckValDes.waitForExist({ timeout: 3000 });
             await this.uncheckValDes.click();
@@ -98,20 +101,21 @@ class OutBagPage {
             console.log('Checkbox tidak ada, skip.');
         }
 
-
-
         // Validate Connote Number
-
-        const numberConnote= await $('tbody.vs-table__tbody tr:nth-child(1) td:nth-child(2) span');
+        const numberConnote = await $('tbody.vs-table__tbody tr:nth-child(1) td:nth-child(2) span');
         await numberConnote.waitForDisplayed({ timeout: 10000 });
 
         const text = (await numberConnote.getText()).trim();
         console.log(`Nomor connote/bag input pertama: "${text}"`);
         console.log("Expected nomor connote/bag input pertama:", number);
 
-        await softCheck(`[Create Bag] Connote input ke-1 (${text}), Tidak Sesuai Input (${number})`, () => {
-            expect(text).toEqual(number);
-        });
+        await this.softCheck(
+            soft,
+            `[Create Bag] Connote input ke-1 ("${text}") tidak sesuai input ("${number}")`,
+            async () => {
+                expect(text).toEqual(number);
+            }
+        );
     }
 
     async createMasterbag(testId, number, destination, soft = null) {
@@ -145,24 +149,21 @@ class OutBagPage {
             console.log('Destination sudah ada, skip input destination.');
         }
 
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
-
         // Validate Connote Number
-
-        const numberConnote= await $('tbody.vs-table__tbody tr:nth-child(1) td:nth-child(2) span');
+        const numberConnote = await $('tbody.vs-table__tbody tr:nth-child(1) td:nth-child(2) span');
         await numberConnote.waitForDisplayed({ timeout: 10000 });
 
         const text = (await numberConnote.getText()).trim();
         console.log(`Nomor connote/bag input pertama: "${text}"`);
         console.log("Expected nomor connote/bag input pertama:", number);
 
-        await softCheck(`[Create Bag] Connote input ke-1 (${text}), Tidak Sesuai Input (${number})`, () => {
-            expect(text).toEqual(number);
-        });
-        
+        await this.softCheck(
+            soft,
+            `[Create Masterbag] Connote input ke-1 ("${text}") tidak sesuai input ("${number}")`,
+            async () => {
+                expect(text).toEqual(number);
+            }
+        );
     }
 
     async addAdditionalItem(number, soft = null) {
@@ -174,13 +175,10 @@ class OutBagPage {
         await browser.keys(['Enter']);
         await browser.pause(5000);
 
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
-
-        // Cari span di kolom ke-2, baris mana saja, yang teks-nya mengandung `number`
-        const cellConnote = await $(`//tbody[contains(@class,"vs-table__tbody")]//tr/td[2]/span[contains(normalize-space(), "${number}")]`);
+        // Cari span di kolom ke-2 yang teks-nya mengandung `number`
+        const cellConnote = await $(
+            `//tbody[contains(@class,"vs-table__tbody")]//tr/td[2]/span[contains(normalize-space(), "${number}")]`
+        );
 
         await cellConnote.waitForDisplayed({ timeout: 10000 });
 
@@ -189,9 +187,11 @@ class OutBagPage {
         console.log("Nomor additional connote/bag yang ditemukan:", connoteText);
         console.log("Expected nomor connote/bag:", number);
 
-        await softCheck(
-            `[Additional Connote/Bag] Connote/Bag yang mengandung: (${number}) tidak ditemukan atau tidak sesuai. Didapat: (${connoteText})`,() => {
-                expect(connoteText).toEqual(number); 
+        await this.softCheck(
+            soft,
+            `[Additional Connote/Bag] expected "${number}" tapi didapat "${connoteText}"`,
+            async () => {
+                expect(connoteText).toEqual(number);
             }
         );
     }
@@ -210,21 +210,19 @@ class OutBagPage {
         await this.btnSubmit.waitForDisplayed({ timeout: 5000 });
         await this.btnSubmit.waitForClickable({ timeout: 5000 });
         await this.btnSubmit.click();
-        
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
 
-        // Validasi
-        await softCheck(`[Remove Additional Connote] Connote Baris ke-2 (${connoteText}), Masih Tampil`, async () => {
-            const allTexts = await $$('tbody.vs-table__tbody tr td:nth-child(2) span');
-            const allValues = [];
-            for (const el of allTexts) {
-                allValues.push((await el.getText()).trim());
+        await this.softCheck(
+            soft,
+            `[Remove Additional Connote] Connote baris ke-2 ("${connoteText}") masih tampil`,
+            async () => {
+                const allTexts = await $$('tbody.vs-table__tbody tr td:nth-child(2) span');
+                const allValues = [];
+                for (const el of allTexts) {
+                    allValues.push((await el.getText()).trim());
+                }
+                expect(allValues).not.toContain(connoteText);
             }
-            expect(allValues).not.toContain(connoteText);
-        });
+        );
     }
 
     async editDestination(destination, soft = null) {
@@ -238,6 +236,7 @@ class OutBagPage {
             timeout: 5000,
             timeoutMsg: 'Destination belum muncul di DOM'
         });
+
         const oldDestination = (await destinationEl.getText()).replace('Destination:', '').trim();
         console.log('Destination lama:', oldDestination);
 
@@ -246,8 +245,7 @@ class OutBagPage {
         await this.inputDestination.waitForClickable({ timeout: 5000 });
         await this.inputDestination.click();
         await this.inputDestination.setValue(destination);
-        // Pilih dari dropdown / tekan Enter
-        await browser.pause(1000); // jeda singkat agar dropdown muncul
+        await browser.pause(1000);
         await browser.keys(['ArrowDown', 'Enter']);
 
         // Tunggu update di DOM
@@ -259,20 +257,18 @@ class OutBagPage {
             timeout: 5000,
             timeoutMsg: 'Destination tidak berubah di DOM'
         });
-        // Ambil nilai baru
+
         const updatedDestination = (await destinationEl.getText()).replace('Destination:', '').trim();
         console.log('Destination baru:', updatedDestination);
-        // Validasi
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
 
-        await softCheck(`[Edit Destination] Destination Terbaru: (${updatedDestination}), Masih sama dengan Destination Sebelumnya : (${oldDestination})"`, async () => {
-            expect(updatedDestination).not.toBe(oldDestination);
-        });
+        await this.softCheck(
+            soft,
+            `[Edit Destination] Destination baru ("${updatedDestination}") masih sama dengan sebelumnya ("${oldDestination}")`,
+            async () => {
+                expect(updatedDestination).not.toBe(oldDestination);
+            }
+        );
     }
-
 
     async approveData(weight, soft = null) {
         // Get Weight Sebelum
@@ -300,15 +296,13 @@ class OutBagPage {
         const actualWeightAfter = matchAfter ? matchAfter[1] : null;
         console.log('Actual Weight After:', actualWeightAfter);
 
-        // Validasi
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
-
-        await softCheck(`[Add Actual Weight] Actual Weight Baru Masih Belum Berhasil ditambahkan : (${actualWeightBefore}),  Seharusnya  : (${actualWeightAfter})`, async () => {
-            expect(actualWeightAfter).not.toBe(actualWeightBefore);
-        });
+        await this.softCheck(
+            soft,
+            `[Add Actual Weight] Weight baru tidak berubah. Before="${actualWeightBefore}" After="${actualWeightAfter}"`,
+            async () => {
+                expect(actualWeightAfter).not.toBe(actualWeightBefore);
+            }
+        );
 
         await this.btnApprove.waitForDisplayed({ timeout: 5000 });
         await this.btnApprove.waitForClickable({ timeout: 5000 });
@@ -317,11 +311,16 @@ class OutBagPage {
         const btnUnapprove = await $('button[data-testid="button-unapproved"]');
         await btnUnapprove.waitForDisplayed({timeout:5000});
         const isDisabled = await btnUnapprove.getAttribute('disabled');
-        await softCheck('Approve belum berhasil, Button Approve belum Disabled', async () => {
-            expect(isDisabled).toBe('true'); // tombol sudah disabled
-        });
+
+        await this.softCheck(
+            soft,
+            'Approve belum berhasil, Button Unapproved belum disabled',
+            async () => {
+                expect(isDisabled).toBe('true');
+            }
+        );
+
         console.log('Tombol approve sudah disabled, status: Approved');
-  
     }
 
     async approveDataPra(soft = null) {
@@ -329,17 +328,18 @@ class OutBagPage {
         await this.btnApprove.waitForClickable({ timeout: 5000 });
         await this.btnApprove.click();
 
-        // Validasi
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
         const btnUnapprove = await $('button[data-testid="button-unapproved"]');
         await btnUnapprove.waitForDisplayed({timeout:5000});
         const isDisabled = await btnUnapprove.getAttribute('disabled');
-        await softCheck('Approve belum berhasil, Button Approve belum Disabled', async () => {
-            expect(isDisabled).toBe('true'); // tombol sudah disabled
-        });
+
+        await this.softCheck(
+            soft,
+            'Approve belum berhasil, Button Unapproved belum disabled',
+            async () => {
+                expect(isDisabled).toBe('true');
+            }
+        );
+
         console.log('Tombol approve sudah disabled, status: Approved');
     }
 
@@ -347,26 +347,23 @@ class OutBagPage {
         await this.btnPrint.waitForDisplayed({ timeout: 5000 });
         await this.btnPrint.waitForClickable({ timeout: 5000 });
         await this.btnPrint.click();
+
         await this.numberBag.waitForDisplayed();
         const bagNumberText = await this.numberBag.getText();
         const bagNumber = bagNumberText.replace('Bag No. ', '').trim();
         console.log(`Nomor bag ditemukan di tabel: "${bagNumber}"`);
 
-        // Simpan handle utama
         const mainHandle = await browser.getWindowHandle();
 
-        // Tunggu tab baru terbuka
         await browser.waitUntil(async () => (await browser.getWindowHandles()).length > 1, {
             timeout: 15000,
             timeoutMsg: 'Tab print tidak terbuka.',
         });
 
-        // Pindah ke tab print
         const handles = await browser.getWindowHandles();
         const printHandle = handles.find(h => h !== mainHandle);
         await browser.switchToWindow(printHandle);
 
-        // Tunggu URL print muncul
         await browser.waitUntil(async () => {
             const url = await browser.getUrl();
             return url.includes('print/');
@@ -378,28 +375,22 @@ class OutBagPage {
         const currentUrl = await browser.getUrl();
         console.log(`URL print terdeteksi: ${currentUrl}`);
 
-        // Ambil nomor bag dari URL
-        // Misal URL: https://core-staging.jne.co.id/print/BAGNUMBERXXX/
         const urlParts = currentUrl.split('/');
-        // Bag number biasanya di bagian index 4 (setelah /print/)
         let urlBagNumber = decodeURIComponent(urlParts[4]);
         console.log(`Nomor bag dari URL: ${urlBagNumber}`);
-        
-        // Validasi
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
-        
-        // Validasi terhadap h3
+
         const normalize = str => decodeURIComponent(str).replace(/\\/g, '/').trim();
 
-        await softCheck('[Print] Bag number di URL sesuai dengan bag number yang di-approve', async () => {
-            expect(normalize(urlBagNumber)).toBe(normalize(bagNumber));
-        });
+        await this.softCheck(
+            soft,
+            '[Print] Bag number di URL tidak sesuai dengan bag number yang di-approve',
+            async () => {
+                expect(normalize(urlBagNumber)).toBe(normalize(bagNumber));
+            }
+        );
+
         console.log(`Nomor bag pada halaman print sesuai: ${normalize(urlBagNumber)}, ${normalize(bagNumber)}`);
 
-        // Tutup tab print dan kembali ke tab utama
         await browser.closeWindow();
         await browser.switchToWindow(mainHandle);
 
@@ -411,21 +402,17 @@ class OutBagPage {
         await this.btnPrint.waitForClickable({ timeout: 5000 });
         await this.btnPrint.click();
 
-        // Simpan handle utama
         const mainHandle = await browser.getWindowHandle();
 
-        // Tunggu tab baru terbuka
         await browser.waitUntil(async () => (await browser.getWindowHandles()).length > 1, {
             timeout: 15000,
             timeoutMsg: 'Tab print tidak terbuka.',
         });
 
-        // Pindah ke tab print
         const handles = await browser.getWindowHandles();
         const printHandle = handles.find(h => h !== mainHandle);
         await browser.switchToWindow(printHandle);
 
-        // Tunggu URL print muncul
         await browser.waitUntil(async () => {
             const url = await browser.getUrl();
             return url.includes('/PRA%');
@@ -437,18 +424,16 @@ class OutBagPage {
         const currentUrl = await browser.getUrl();
         console.log(`URL PRA terdeteksi: ${currentUrl}`);
 
-        // Validasi
-        const softCheck = async (title, fn) => {
-            if (soft && typeof soft.check === 'function') return soft.check.call(soft, title, fn);
-            return fn();
-        };
-    
-        await softCheck('[Print Bag PRA] Print berhasil, URL sesuai mengandung PRA', async () => {
-            expect(currentUrl.toLowerCase()).toContain('bagging-detail/pra%');
-        });
+        await this.softCheck(
+            soft,
+            '[Print Bag PRA] Print berhasil, URL tidak sesuai mengandung PRA',
+            async () => {
+                expect(currentUrl.toLowerCase()).toContain('bagging-detail/pra%');
+            }
+        );
+
         console.log(`[Print Bag PRA] Validasi URL berhasil: ${currentUrl}`);
 
-        // Tutup tab print dan kembali ke tab utama
         await browser.closeWindow();
         await browser.switchToWindow(mainHandle);
     }

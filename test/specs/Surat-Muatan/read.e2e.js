@@ -12,9 +12,9 @@ describe('AT-CORE-0022', () => {
         await NavigationFlow.loginAndNavigateToSuratMuatan();
     });
 
-    describe('AT-CORE-00    22-01', () => {
+    describe('AT-CORE-0022-01', () => {
         
-        it('Read Surat Muatan in Table Search List', async () => {
+        it('Read Data Table Surat Muatan', async () => {
             const tests = [
                 { index: 1, value: 'DARAT' }, // Type SM 
                 { index: 2, value: 'UDARA' }, // Jenis Kiriman 
@@ -60,9 +60,8 @@ describe('AT-CORE-0022', () => {
 
                 await TotalColumnPage.validateTotalMatchesRows();
             }
-        });
 
-        it('Validate Status Column after selecting status options', async () => {
+            // Validate Status Column after selecting status options'
             const statusOptions = ['UNAPPROVED', 'RECEIVED', 'OUTSTANDING', 'UNRECEIVED', 'CANCELED', 'MISSROUTE RECEIVED'];
 
             for (const status of statusOptions) {
@@ -94,9 +93,8 @@ describe('AT-CORE-0022', () => {
 
                 console.log(` Semua cell di kolom 2 sesuai status "${status}"`);
             }
-        });
 
-        it('Validate Route Column after selecting route options', async () => {
+            // Validate Route Column after selecting route options
             const routeOptions = ['TRANSIT', 'DIRECT'];
 
             for (const route of routeOptions) {
@@ -151,9 +149,8 @@ describe('AT-CORE-0022', () => {
                 expect(allMatch).toBe(true);
                 console.log(` Semua cell kolom 8 valid untuk route "${route}"`);
             }
-        });
 
-        it('Validate Date Range + Filter Date', async () => {
+            // Validate Date Range + Filter Date
             const startDate = "2025-09-01";
             const endDate   = "2025-09-30";
 

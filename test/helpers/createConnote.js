@@ -9,7 +9,7 @@ import { browser, expect } from '@wdio/globals';
 class ConnoteBagFlow {
 
     static async createConnoteForBag() {
-        const soft = new SoftError();
+        const soft = new SoftError('ConnoteBagFlow');
 
         // Login dan navigasi
         await NavigationFlow.loginAndNavigateToNewTransaction();
@@ -56,10 +56,11 @@ class ConnoteBagFlow {
             mode: 'exact'
         });
 
-        soft.check('Jumlah Connote', () => {
+        await soft.checkAsync('Jumlah Connote', async () => {
             expect(jumlahConnote).toBe(1);
         });
-        soft.check('Jumlah Koli', () => {
+
+        await soft.checkAsync('Jumlah Koli', async () => {
             expect(jumlahKoli).toBe(1);
         });
 
@@ -74,26 +75,37 @@ class ConnoteBagFlow {
         const generatedConnoteNumber = await ConnotePrintPage.getConnoteNumberFromPrint();
         console.log(` Nomor Connote berhasil di-generate: ${generatedConnoteNumber}`);
 
+        // sebelumnya fail cepat -> bikin soft aja biar konsisten & bisa screenshot juga
+        await soft.checkAsync('Generated Connote Number harus terisi', async () => {
+            expect(generatedConnoteNumber).toBeTruthy();
+        });
+
         await ConnotePrintPage.validatePrintData('CASH', testData, 0, soft);
         await ConnotePrintPage.closePrintWindow(main);
 
         // ====== THANK YOU PAGE ======
         await ConnotePage.validateThankYouPage();
 
-        // ====== RECEIVING CONNOTE =======
-        expect(generatedConnoteNumber).toBeTruthy(); // biar fail cepat kalau kosong
-
         await NavigationFlow.logout(); // Logout
 
         await NavigationFlow.loginAndNavigateToIncoming();
-
         await ReceivingPage.pageTitle.waitForDisplayed({ timeout: 5000 });
 
-        await ReceivingPage.receivingKoli(generatedConnoteNumber);
-
-        await ReceivingPage.validateReceivedConnote(generatedConnoteNumber, soft);
+        // receivingKoli biasanya butuh connoteNumber valid,
+        // jadi kalau kosong, langkah di bawah bisa error cascading.
+        // Kita jalanin tetap, tapi kalau mau aman:
+        if (generatedConnoteNumber) {
+            await ReceivingPage.receivingKoli(generatedConnoteNumber);
+            await ReceivingPage.validateReceivedConnote(generatedConnoteNumber, soft);
+        } else {
+            // tetap catat sebagai soft error tambahan (biar jelas di Allure)
+            await soft.checkAsync('Skipping Receiving karena generatedConnoteNumber kosong', async () => {
+                expect(generatedConnoteNumber).toBeTruthy();
+            });
+        }
 
         await NavigationFlow.logout();
+
         // ====== AKHIR TEST ======
         soft.flush();
 

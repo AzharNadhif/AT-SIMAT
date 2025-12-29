@@ -9,7 +9,7 @@ describe('AT-CORE-0014', () => {
     });
 
     describe('AT-CORE-0014-06', () => {
-        it('Validate the total of row values with Rows/Page = 50', async () => {
+        it('Row per Page 50 in Data Table', async () => {
             const value = 50;
             await PaginationPage.selectRowsPerPage(value);
 

@@ -79,7 +79,7 @@ class SidebarPage {
     }
 
     get openBag() {
-        return $('//a[@href="/inventory/unbagging" and .//p[normalize-space()="Open Bag"]]');
+        return $('//a[@href="/sorting/unbagging" and .//p[normalize-space()="Open Bag"]]');
     }
 
     // ======= ACTIONS =======
@@ -365,9 +365,9 @@ class SidebarPage {
         await browser.waitUntil(
             async () => {
                 const url = await browser.getUrl();
-                return url.includes('inventory') && url.includes('unbagging');
+                return url.includes('sorting') && url.includes('unbagging');
             },
-            { timeout: 10000, timeoutMsg: 'Inventory Unbagging page did not load' }
+            { timeout: 10000, timeoutMsg: 'Sorting Unbagging page did not load' }
         );
     }
 
