@@ -197,7 +197,7 @@ class OutBagPage {
     }
 
     async removeAdditionalConnote(soft = null) {
-        const cellConnote = await $('tbody.vs-table__tbody tr:nth-child(2) td:nth-child(2) span');
+        const cellConnote = await $('[data-testid="data-item_number-2"]');
         await cellConnote.waitForDisplayed({ timeout: 10000 });
 
         const connoteText = (await cellConnote.getText()).trim(); 
@@ -212,16 +212,37 @@ class OutBagPage {
         await this.btnSubmit.click();
 
         await this.softCheck(
-            soft,
-            `[Remove Additional Connote] Connote baris ke-2 ("${connoteText}") masih tampil`,
-            async () => {
-                const allTexts = await $$('tbody.vs-table__tbody tr td:nth-child(2) span');
-                const allValues = [];
-                for (const el of allTexts) {
-                    allValues.push((await el.getText()).trim());
+        soft,
+        `[Remove Additional Connote] Connote baris ke-2 ("${connoteText}") masih tampil`,
+        async () => {
+
+            // Pastikan aksi submit benar-benar selesai (modal sudah tertutup)
+            await this.modalTitleRemove.waitForDisplayed({ reverse: true, timeout: 10000 });
+
+            // Tunggu sampai connote TIDAK LAGI TAMPIL di tabel
+            await browser.waitUntil(async () => {
+
+            // Ambil semua elemen connote di DOM
+            const els = await $$('[data-testid^="data-item_number-"]');
+
+            // Simpan HANYA connote yang benar-benar tampil di layar
+            const values = [];
+            for (const el of els) {
+                if (await el.isDisplayed()) {                
+                values.push((await el.getText()).trim());
                 }
-                expect(allValues).not.toContain(connoteText);
             }
+
+            // true  -> connote sudah hilang dari tampilan
+            // false -> connote masih terlihat
+            return !values.includes(connoteText);
+
+            }, {
+            timeout: 10000,
+            timeoutMsg: `Connote "${connoteText}" masih tampil di tabel`
+            });
+
+        }
         );
     }
 
@@ -376,7 +397,7 @@ class OutBagPage {
         console.log(`URL print terdeteksi: ${currentUrl}`);
 
         const urlParts = currentUrl.split('/');
-        let urlBagNumber = decodeURIComponent(urlParts[4]);
+        let urlBagNumber = decodeURIComponent(urlParts[5]);
         console.log(`Nomor bag dari URL: ${urlBagNumber}`);
 
         const normalize = str => decodeURIComponent(str).replace(/\\/g, '/').trim();
@@ -428,7 +449,7 @@ class OutBagPage {
             soft,
             '[Print Bag PRA] Print berhasil, URL tidak sesuai mengandung PRA',
             async () => {
-                expect(currentUrl.toLowerCase()).toContain('bagging-detail/pra%');
+                expect(currentUrl.toLowerCase()).toContain('print/delivery/pra%');
             }
         );
 

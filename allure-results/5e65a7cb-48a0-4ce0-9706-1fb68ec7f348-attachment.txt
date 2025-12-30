@@ -1,4 +1,0 @@
-[[Print] Bag number di URL tidak sesuai dengan bag number yang di-approve] [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
-
-Expected: [32m"HACB/BDO/1767003497"[39m
-Received: [31m"delivery"[39m

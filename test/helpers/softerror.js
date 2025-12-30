@@ -48,6 +48,9 @@ class SoftError {
         try {
             const pngBase64 = await browser.takeScreenshot();
             this._attachPng(`${this.prefix} Screenshot #${this.count} (${label})`, pngBase64);
+
+            // tanda kalau udah ada screenshot dari SoftError di test ini
+            globalThis.__SOFT_SS_TAKEN__ = true;
         } catch (ssErr) {
             const ssMsg = `[${label}] Screenshot failed: ${ssErr?.message || String(ssErr)}`;
             this.errors.push(ssMsg);

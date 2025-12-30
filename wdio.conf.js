@@ -1,6 +1,7 @@
 import path from 'path';
 import 'dotenv/config';
 import fs from 'fs';
+import AllureReporter from '@wdio/allure-reporter';
 
 const isHeadless = /^(1|true|yes|on)$/i.test(process.env.HEADLESS || '');
 
@@ -77,9 +78,6 @@ export const config = {
         receiveSM: [
             './test/specs/Receive-Surat/receiveSM.e2e.js',
         ],
-        receiveSJ: [
-            './test/specs/Receive-Surat/receiveSJ.e2e.js',
-        ],
         SuratJalanRegular: [
             './test/specs/Outgoing-SJ/createSJReg.e2e.js',
         ],
@@ -88,6 +86,9 @@ export const config = {
         ],
         SuratJalanMTS: [
             './test/specs/Outgoing-SJ/createSJMTS.e2e.js',
+        ],
+        receiveSJ: [
+            './test/specs/Receive-Surat/receiveSJ.e2e.js',
         ],
         inventoryKoli: [
             './test/specs/Inventory-Koli/assertTitle.e2e.js',
@@ -225,7 +226,7 @@ export const config = {
         ['allure', {
             outputDir: 'allure-results',
             disableWebdriverStepsReporting: true,
-            disableWebdriverScreenshotsReporting: false,
+            disableWebdriverScreenshotsReporting: true,
         }]
     ],
 
@@ -253,9 +254,16 @@ export const config = {
      * @param {boolean} result.passed    true if test has passed, otherwise false
      * @param {object}  result.retries   information about spec related retries, e.g. `{ attempts: 0, limit: 0 }`
      */
+    beforeTest: function () {
+        globalThis.__SOFT_SS_TAKEN__ = false;
+    },
+
     afterTest: async function(test, context, { error, result, duration, passed, retries }) {
         if (!passed) {
-            await browser.takeScreenshot();
+            if (globalThis.__SOFT_SS_TAKEN__) return;
+
+            const png = await browser.takeScreenshot(); // base64
+            AllureReporter.addAttachment('Screenshot (afterTest)', Buffer.from(png, 'base64'), 'image/png');
         }
     },
 
