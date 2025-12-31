@@ -19,7 +19,7 @@ describe('AT-CORE-0014', () => {
                 { index: 2, value:'BDO10000'},              // Origin (main)
                 { index: 0, value:'0608418726018006' },     // Connote (main)
                 { index: 3, value:'SUB10008'},              // Destination (main)
-                // { index: 4, value:'4'},                     // Cost Weight (expand)
+                { index: 4, value:'4'},                     // Cost Weight (expand)
                 { index: 5, value:'REG23'},                 // Service (main)
                 { index: 6, value:'18000'},                 // Amount COD (expand)
             ];
@@ -80,7 +80,7 @@ describe('AT-CORE-0014', () => {
             // Validasi total data sesuai row
             await TotalColumnPage.validateTotalMatchesRows();
 
-        // Validate Filter Connote Status
+            // Validate Filter Connote Status
             await browser.refresh();
             await InventoryPage.btnConnote.waitForClickable({timeout:5000});
             await InventoryPage.btnConnote.click();

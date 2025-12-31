@@ -20,7 +20,7 @@ describe('AT-CORE-0022', () => {
                 { index: 2, value: 'UDARA' }, // Jenis Kiriman 
                 { index: 3, value: 'BANDUNG' }, // Origin 
                 { index: 4, value: 'SURABAYA' }, // Destination 
-                // { index: 5, value: '1' }, // Weight 
+                { index: 5, value: '1' }, // Weight 
                 { index: 6, value: 'RECEIVED' }, // Status 
                 { index: 0, value: 'SMDT-AW5SEP2025' }, // Manifest Number
             ];
@@ -59,6 +59,10 @@ describe('AT-CORE-0022', () => {
                 console.log(`Value "${value}" ditemukan di tabel`);
 
                 await TotalColumnPage.validateTotalMatchesRows();
+
+                // reset search setelah selesai 1 iterasi
+                await SuratmuatanPage.resetSearchSuratMuatan();
+
             }
 
             // Validate Status Column after selecting status options'
@@ -93,6 +97,7 @@ describe('AT-CORE-0022', () => {
 
                 console.log(` Semua cell di kolom 2 sesuai status "${status}"`);
             }
+            await SuratmuatanPage.resetDropdownFilter('status');
 
             // Validate Route Column after selecting route options
             const routeOptions = ['TRANSIT', 'DIRECT'];
@@ -149,6 +154,7 @@ describe('AT-CORE-0022', () => {
                 expect(allMatch).toBe(true);
                 console.log(` Semua cell kolom 8 valid untuk route "${route}"`);
             }
+            await SuratmuatanPage.resetDropdownFilter('route');
 
             // Validate Date Range + Filter Date
             const startDate = "2025-09-01";

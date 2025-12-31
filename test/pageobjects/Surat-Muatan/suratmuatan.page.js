@@ -125,6 +125,27 @@ class SuratMuatanPage {
         await browser.pause(300);
     }
 
+    async resetDropdownFilter(testId) {
+        const dropdown = this.getColumnDropdown(testId);
+        await dropdown.waitForDisplayed({ timeout: 5000 });
+
+        // ambil semua chip close button di dalam dropdown
+        const chipsClose = await dropdown.$$('.vs-select__chips__chip__close');
+
+        if (chipsClose.length === 0) {
+            console.log('Tidak ada chip aktif, skip reset');
+            return;
+        }
+
+        for (const closeBtn of chipsClose) {
+            await closeBtn.waitForClickable({ timeout: 5000 });
+            await closeBtn.click();
+            await browser.pause(200);
+        }
+
+        console.log('Semua chip filter berhasil di-reset');
+    }
+
     // Search Surat Muatan
     async searchSuratMuatan(indexSearch, value) {
         await this.searchBy.waitForClickable({ timeout: 5000 });
@@ -175,6 +196,28 @@ class SuratMuatanPage {
         await browser.pause(300);
     }
 
+    // === Reset search bar + enter ===
+    async resetSearchSuratMuatan() {
+        const input = await this.searchInput;
+        await input.waitForDisplayed({ timeout: 5000 });
+        await input.click();
+
+        // clear yang stabil
+        await browser.keys(['Control', 'a']);
+        await browser.keys('Backspace');
+
+        // trigger reload/reset via Enter
+        await browser.keys('Enter');
+
+        // tunggu tabel balik muncul
+        await browser.waitUntil(async () => {
+        const rows = await $$('table tbody tr');
+        return rows.length > 0;
+        }, { timeout: 15000, timeoutMsg: 'Tabel tidak muncul setelah reset search.' });
+
+        await browser.pause(300);
+    }
+
     // ===== Read Date time Inventory =====
     async selectByDate(index) {
         await this.selectSearchByDate.waitForDisplayed({ timeout: 5000 });
@@ -192,7 +235,7 @@ class SuratMuatanPage {
 
         await options[index].waitForDisplayed({ timeout: 5000 });
         await options[index].waitForClickable({ timeout: 5000 });
-        await options[index].click();
+        await options[index].click();   
 
         await browser.pause(500);
     }

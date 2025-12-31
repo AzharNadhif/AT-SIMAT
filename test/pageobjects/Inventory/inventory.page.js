@@ -20,7 +20,7 @@ class InventoryPage {
 
     // get select-searchBy
     get searchBy() {
-        return $('div[data-testid="select-search-by"]');
+        return $$('div[data-testid="select-search-by"]')[0];
     }
 
     // Option Search By
@@ -50,7 +50,7 @@ class InventoryPage {
 
     // get Inventory date status
     get dateStatus() {
-        return $('//div[@data-testid="select-filter-date-by"]')
+        return $$('//div[@data-testid="select-search-by"]')[1];
     }
 
     // get date koli
@@ -103,32 +103,45 @@ class InventoryPage {
         // Kembalikan dalam bentuk array, seperti fungsi sebelumnya
         return [value];
     }
+
     // Pilih opsi di dropdown
     async selectBagStatusByIndex(index) {
         // Scroll & klik dropdown
-        // await this.bagStatus.scrollIntoView();
         await this.bagStatus.waitForDisplayed({ timeout: 5000 });
         await this.bagStatus.waitForClickable({ timeout: 5000 });
         await this.bagStatus.click();
 
-        // Tunggu panel muncul
-        const optionsPanel = await $('.vs-select__options'); // container selalu ada
-        await optionsPanel.waitForDisplayed({ timeout: 5000 });
+        // Tunggu panel muncul (Element UI popper)
+        const optionsPanel = await $('.el-select-dropdown.el-popper');
+        await optionsPanel.waitForExist({ timeout: 5000 }); 
 
-        // Ambil semua opsi di dalam panel
-        const options = await optionsPanel.$$(`.//button[contains(@class,"vs-select__option")]`);
+        // kalau di page ada banyak dropdown, ambil yang TERAKHIR (biasanya yang aktif)
+        const panels = await $$('.el-select-dropdown.el-popper');
+        const activePanel = panels[panels.length - 1];
+        
+        const options = await activePanel.$$('li.el-select-dropdown__item');
         if (options.length === 0) throw new Error('Tidak ada opsi di dropdown Bag Status');
         if (index < 0 || index >= options.length) {
             throw new Error(`Index ${index} di luar range (0..${options.length - 1})`);
         }
 
-        // await options[index].scrollIntoView();
-        await options[index].waitForDisplayed({ timeout: 5000 });
-        await options[index].waitForClickable({ timeout: 5000 });
-        await options[index].click();
+        const opt = options[index];
+
+        // === tambahan kecil biar clickable ===
+        await opt.scrollIntoView();
+        await opt.moveTo();
+
+        try {
+            await opt.waitForClickable({ timeout: 8000 }); 
+            await opt.click();
+        } catch (e) {
+            // fallback paling ampuh kalau ketutup overlay/animasi
+            await browser.execute(el => el.click(), opt);
+        }
 
         await browser.pause(500);
     }
+
     // Validasi sesuai pilihan
     async validateBagColumn(option) {
         const values = await this.getAllBagCellValues();
@@ -170,6 +183,7 @@ class InventoryPage {
         // Kembalikan dalam bentuk array, seperti fungsi sebelumnya
         return [value];
     }
+
     // Pilih opsi di dropdown
     async selectInventoryStatus(index) {
         // Scroll & klik dropdown
@@ -177,24 +191,37 @@ class InventoryPage {
         await this.inventoryStatus.waitForClickable({ timeout: 5000 });
         await this.inventoryStatus.click();
 
-        // Tunggu panel muncul
-        const optionsPanel = await $('.vs-select__options'); // container selalu ada
-        await optionsPanel.waitForDisplayed({ timeout: 5000 });
-
-        // Ambil semua opsi di dalam panel
-        const options = await optionsPanel.$$(`.//button[contains(@class,"vs-select__option")]`);
-        if (options.length === 0) throw new Error('Tidak ada opsi di dropdown Bag Status');
+        // Tunggu panel muncul (Element UI popper)
+        const optionsPanel = await $('.el-select-dropdown.el-popper');
+        await optionsPanel.waitForExist({ timeout: 5000 }); 
+        
+        // kalau di page ada banyak dropdown, ambil yang TERAKHIR (biasanya yang aktif)
+        const panels = await $$('.el-select-dropdown.el-popper');
+        const activePanel = panels[panels.length - 1];
+        
+        const options = await activePanel.$$('li.el-select-dropdown__item');
+        if (options.length === 0) throw new Error('Tidak ada opsi di dropdown Inventory Status');
         if (index < 0 || index >= options.length) {
             throw new Error(`Index ${index} di luar range (0..${options.length - 1})`);
         }
 
-        // await options[index].scrollIntoView();
-        await options[index].waitForDisplayed({ timeout: 5000 });
-        await options[index].waitForClickable({ timeout: 5000 });
-        await options[index].click();
+        const opt = options[index];
+
+        // === tambahan kecil biar clickable ===
+        await opt.scrollIntoView();
+        await opt.moveTo();
+
+        try {
+            await opt.waitForClickable({ timeout: 8000 }); 
+            await opt.click();
+        } catch (e) {
+            // fallback paling ampuh kalau ketutup overlay/animasi
+            await browser.execute(el => el.click(), opt);
+        }
 
         await browser.pause(500);
     }
+
     // Validasi sesuai pilihan
     async validateStatusColumn(option) {
         const values = await this.getAllCellStatus();
@@ -412,7 +439,7 @@ class InventoryPage {
         await expandContent.waitForDisplayed({ timeout: 5000 });
 
         // Ambil kolom Status dari setiap baris expand (kolom ke-2)
-        const statusCells = await $$('//div[contains(@class,"vs-table__expand__td__content__sub")]//table//tr/td[7]//ul/li/p');
+        const statusCells = await $$('//div[contains(@class,"vs-table__expand__td__content__sub")]//table//tr/td[8]//ul/li/p');
 
         // Pastikan elemen ada sebelum mengambil teksnya
         if (statusCells.length === 0) {
