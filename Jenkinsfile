@@ -144,6 +144,12 @@ pipeline {
 
             echo "--- ARCHIVING ALLURE RESULTS ---"
             archiveArtifacts artifacts: 'allure-results/**', fingerprint: true
+
+            echo "--- SYNC ALLURE RESULT TO DATABASE ---"
+
+            bat '''
+            curl -X POST http://localhost:3000/api/allure/sync
+            '''
         }
     }
 }
