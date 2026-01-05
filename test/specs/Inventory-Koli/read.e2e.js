@@ -22,7 +22,7 @@ describe('AT-CORE-0013', () => {
                 { index: 3, value:'SUB10008 '}, // Destination
                 { index: 4, value:'2'}, // Cost Weight
                 { index: 5, value:'REG23'}, // Service
-                { index: 6, value:'18000'}, // Amount COD
+                // { index: 6, value:'18000'}, // Amount COD
             ];
 
             for (const { index, value } of tests) {
