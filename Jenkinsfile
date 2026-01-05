@@ -9,13 +9,13 @@ pipeline {
         string(
             name: 'SUITES',
             defaultValue: '',
-            description: 'Suite yang ingin dijalankan. Contoh: HRS,receivingConnote'
+            description: 'Suite yang ingin dijalankan. Contoh: PraRunsheetBag, receivingConnote'
         )
 
         string(
             name: 'SPEC',
             defaultValue: '',
-            description: 'Jalankan test file tertentu. Contoh: test/specs/HRS/AT-CORE-001.e2e.js'
+            description: 'Jalankan test file tertentu. Contoh: test/specs/Inventori-Koli/read.e2e.js'
         )
     }
 
