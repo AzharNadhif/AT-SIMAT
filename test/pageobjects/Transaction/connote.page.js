@@ -329,6 +329,7 @@ class ConnotePage {
         if (data.provinsiPenerima) {
             await this.inputDestinationOnchange.waitForDisplayed({ timeout: 5000 });
             await this.inputDestinationOnchange.click();
+            await browser.pause(3000);
             await browser.keys(['Control', 'a']);
             await browser.keys('Delete');
             await browser.pause(3000);
