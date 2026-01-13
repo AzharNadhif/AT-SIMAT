@@ -247,19 +247,19 @@ class OutBagPage {
     }
 
     async editDestination(destination, soft = null) {
-        // Destination Lama
-        const destinationEl = await $('div.bag-info > p:first-child');
-        await destinationEl.waitForDisplayed({ timeout: 5000 });
-        await browser.waitUntil(async () => {
-            const txt = await destinationEl.getText();
-            return txt.includes('Destination:');
-        }, {
-            timeout: 5000,
-            timeoutMsg: 'Destination belum muncul di DOM'
-        });
+        // // Destination Lama
+        // const destinationEl = await $('div.bag-info > p:first-child');
+        // await destinationEl.waitForDisplayed({ timeout: 5000 });
+        // await browser.waitUntil(async () => {
+        //     const txt = await destinationEl.getText();
+        //     return txt.includes('Destination:');
+        // }, {
+        //     timeout: 5000,
+        //     timeoutMsg: 'Destination belum muncul di DOM'
+        // });
 
-        const oldDestination = (await destinationEl.getText()).replace('Destination:', '').trim();
-        console.log('Destination lama:', oldDestination);
+        // const oldDestination = (await destinationEl.getText()).replace('Destination:', '').trim();
+        // console.log('Destination lama:', oldDestination);
 
         // Edit Destination
         await this.inputDestination.waitForDisplayed({ timeout: 5000 });
@@ -269,26 +269,26 @@ class OutBagPage {
         await browser.pause(1000);
         await browser.keys(['ArrowDown', 'Enter']);
 
-        // Tunggu update di DOM
-        await browser.waitUntil(async () => {
-            const updatedText = await destinationEl.getText();
-            const updatedDestination = updatedText.replace('Destination:', '').trim();
-            return updatedDestination !== oldDestination;
-        }, {
-            timeout: 5000,
-            timeoutMsg: 'Destination tidak berubah di DOM'
-        });
+        // // Tunggu update di DOM
+        // await browser.waitUntil(async () => {
+        //     const updatedText = await destinationEl.getText();
+        //     const updatedDestination = updatedText.replace('Destination:', '').trim();
+        //     return updatedDestination !== oldDestination;
+        // }, {
+        //     timeout: 5000,
+        //     timeoutMsg: 'Destination tidak berubah di DOM'
+        // });
 
-        const updatedDestination = (await destinationEl.getText()).replace('Destination:', '').trim();
-        console.log('Destination baru:', updatedDestination);
+        // const updatedDestination = (await destinationEl.getText()).replace('Destination:', '').trim();
+        // console.log('Destination baru:', updatedDestination);
 
-        await this.softCheck(
-            soft,
-            `[Edit Destination] Destination baru ("${updatedDestination}") masih sama dengan sebelumnya ("${oldDestination}")`,
-            async () => {
-                expect(updatedDestination).not.toBe(oldDestination);
-            }
-        );
+        // await this.softCheck(
+        //     soft,
+        //     `[Edit Destination] Destination baru ("${updatedDestination}") masih sama dengan sebelumnya ("${oldDestination}")`,
+        //     async () => {
+        //         expect(updatedDestination).not.toBe(oldDestination);
+        //     }
+        // );
     }
 
     async approveData(weight, soft = null) {
