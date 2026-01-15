@@ -11,7 +11,7 @@ describe('AT-CORE-0013', () => {
     describe('AT-CORE-0013-09', () => {
         it('Assert Page Title', async () => {
             await InventoryPage.pageTitle.waitForDisplayed({ timeout: 5000 });    // memastikan halaman sudah dimuat
-            expect(await InventoryPage.pageTitle.getText()).toContain('Koli');
+            expect(await InventoryPage.pageTitle.getText()).toContain('Connote');
         });
     });
 
