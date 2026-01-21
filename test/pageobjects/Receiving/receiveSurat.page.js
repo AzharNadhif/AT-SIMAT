@@ -23,11 +23,11 @@ class ReceivingSuratPage {
     }
 
     get inputItem() {
-        return $('//label[normalize-space()="Masukkan SM / SJ / Pickup"]/preceding-sibling::input');
+        return $('//div[contains(@class,"vs-input-content")]' + '[.//label[contains(text(),"SM / SJ")]]//input');
     }
 
     get inputBag() {
-        return $('//label[normalize-space()="Masukkan Masterbag / Bag / Connote"]/preceding-sibling::input');
+        return $('//div[contains(@class,"vs-input-content")]' + '[.//label[contains(text(),"Masterbag / Bag")]]//input');
     }
 
     get boxInformation() {
