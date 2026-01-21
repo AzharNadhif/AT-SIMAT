@@ -3,10 +3,10 @@ import Page from './page.js';
 
 class LoginPage extends Page {
     get inputUsername() {
-        return $('#vs-input--20');
+        return $('input[data-testid="input-user_login"]');
     }
     get inputPassword() {
-        return $('#vs-input--29');
+        return $('input[data-testid="input-password"]');
     }
     get btnSubmit() {
         return $('button[type="submit"]');
