@@ -12,7 +12,7 @@ describe('AT-CORE-0014', () => {
         it('Row per Page 1000 in Data Table', async () => {
             const value = 1000;
             await PaginationPage.selectRowsPerPage(value);
-
+            await browser.pause(22000);
             await PaginationPage.assertRppSelected(value);
             
             // ambil jumlah rows yang tampil 
