@@ -15,6 +15,10 @@ class paginationPage {
         return $('.vs-pagination__button.active');
     }
     
+    get loadingOverlay() {
+        return $('div.vs-loading.vs-loading--target, div.vs-loading--background');
+    }
+
     // ================= ACTION PAGINATION =================
     async isNextDisabled() {
         return await this.nextButton.getAttribute('disabled') !== null;
@@ -120,18 +124,31 @@ class paginationPage {
     }
 
     // ================= ACTION ROWS PER PAGE =================
+    async waitLoadingGone(timeout = 15000) {
+        await browser.waitUntil(async () => {
+            const overlays = await $$('div.vs-loading.vs-loading--target, div.vs-loading--background');
+            if (!overlays.length) return true;
+            const shown = await Promise.all(overlays.map(o => o.isDisplayed().catch(() => false)));
+            return shown.every(v => v === false);
+        }, { timeout, timeoutMsg: 'Loading overlay still visible' });
+    }
+
     async selectRowsPerPage(value) {
         const txt = String(value);
 
+        await this.waitLoadingGone();
         await this.rowsPerPageSelect.scrollIntoView();
+        await this.rowsPerPageSelect.waitForClickable({ timeout: 8000 });
         await this.rowsPerPageSelect.click();
         await this.rowsPerPageOption.waitForDisplayed({ timeout: 5000 });
 
         // klik tombol opsi berdasarkan teks
         const optionBtn = await $(`//div[contains(@class,"vs-select__options__content")]//button[contains(@class,"vs-select__option")][normalize-space(.)="${txt}"]`);
+        await this.waitLoadingGone();
         await optionBtn.waitForDisplayed({ timeout: 5000 });
         await optionBtn.click();
 
+        await this.waitLoadingGone();
         // tunggu sampai refresh:
         // jumlah row = label total, dan jumlah row <= value
         await browser.waitUntil(async () => {
@@ -166,7 +183,6 @@ class paginationPage {
         const rows = await $$('//tbody[contains(@class,"vs-table__tbody")]//tr[td]');
         return rows.length;
     }
-
     
     // ================= ACTION ROWS PER PAGE TRACEBAG =================
     async selectRowsPerPageTB(value) {
