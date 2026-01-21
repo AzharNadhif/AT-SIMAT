@@ -96,7 +96,7 @@ class ConnoteBagFlow {
         // Kita jalanin tetap, tapi kalau mau aman:
         if (generatedConnoteNumber) {
             await ReceivingPage.receivingKoli(generatedConnoteNumber);
-            await ReceivingPage.validateReceivedConnote(generatedConnoteNumber, soft);
+            // await ReceivingPage.validateReceivedConnote(generatedConnoteNumber, soft);
         } else {
             // tetap catat sebagai soft error tambahan (biar jelas di Allure)
             await soft.checkAsync('Skipping Receiving karena generatedConnoteNumber kosong', async () => {

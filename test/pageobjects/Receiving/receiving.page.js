@@ -15,7 +15,7 @@ class ReceivingPage {
     }
 
     get inputKoli() {
-        return $('input[data-testid="input-child_no"]');
+        return $('//div[contains(@class,"vs-input-content")]' + '[.//label[contains(text(),"Masterbag / Bag")]]//input');
     }
 
     get searchConnote() {
@@ -59,8 +59,8 @@ class ReceivingPage {
         await this.inputKoli.waitForDisplayed({ timeout: 5000 });
         await this.inputKoli.click();
 
-        const value = data.toString().trim();
-        await this.inputKoli.setValue(value);
+        // const value = data.toString().trim();
+        await this.inputKoli.setValue(data);
         await browser.keys('Enter');
     }
 
