@@ -11,7 +11,7 @@ describe('AT-CORE-0015', () => {
     describe('AT-CORE-0015-04', () => {
         it('Assert Page Title', async () => {
             await ReceivingPage.pageTitle.waitForDisplayed({ timeout: 5000 });    // memastikan halaman sudah dimuat
-            expect(await ReceivingPage.pageTitle.getText()).toContain('ikan');
+            expect(await ReceivingPage.pageTitle.getText()).toContain('Pre-Alert');
         });
     });
 
