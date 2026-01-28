@@ -6,81 +6,73 @@ class SidebarPage {
         return $('.vs-button__content i.bx.bx-menu');
     }
 
-
     // ======= DELIVERY =========
     get deliveryMenu() {
         return $('//div[@class="vs-sidebar__group__header"]//button[.//div[normalize-space()="Delivery"]]');
     }
 
     get runsheet() {
-        return $('//a[@href="/delivery/runsheet" and .//p[normalize-space()="Delivery Runsheet"]]');
+        return $('//p[normalize-space()="Delivery Runsheet"]/ancestor::button');
     }
     get HRS() {
-        return $('//a[@href="/hrs" and .//p[normalize-space()="Handover Runsheet"]]');
+        return $('//p[normalize-space()="Handover Runsheet"]/ancestor::button');
+
     }
 
     // ======= SETTINGS MENU =======
     get settingsMenu() {
         return $('//div[@class="vs-sidebar__group__header"]//button[.//div[normalize-space()="Settings"]]');
     }
-    // // ======= DROPDOWN SETTINGS =======
-    // get dropdownSettings() {
-    //     return $('.vs-sidebar__item__arrow');
-    // }
 
     // ======= MENU SETTINGS =======
-    // Settings Runsheet
     get settingsRunsheet() {
-        return $('//a[@href="/settings/runsheet" and .//p[normalize-space()="Settings Runsheet"]]');
+        return $('//p[normalize-space()="Settings Runsheet"]/ancestor::button');
     }
-    
-    // Settings KPI
+
     get settingsKPI() {
-        return $('//a[@href="/settings/kpi" and .//p[normalize-space()="Settings KPI"]]');
+        return $('//p[normalize-space()="Settings KPI"]/ancestor::button');
     }
 
-    // Settings Bag
     get settingsBag() {
-        return $('//a[@href="/settings/bag" and .//p[normalize-space()="Settings Bag"]]');
-    }
-    
-    // Settings Destination
-    get settingsDestination() {
-        return $('//a[@href="/settings/destination" and .//p[normalize-space()="Settings Destination"]]');
+        return $('//p[normalize-space()="Settings Bag"]/ancestor::button');
     }
 
-    // Setting Vehicle
+    get settingsDestination() {
+        return $('//p[normalize-space()="Settings Destination"]/ancestor::button');
+    }
+
     get settingsVehicle() {
-        return $('//a[@href="/settings/vehicles" and .//p[normalize-space()="Settings Vehicles"]]');
+        return $('//p[normalize-space()="Settings Vehicles"]/ancestor::button');
     }
 
     // New Transaction
     get newTransaction() {
-        return $('//a[@href="/transaction/new-transactions" and .//p[normalize-space()="New Transaction"]]');
+        return $('//button[.//p[normalize-space()="New Transaction"]]');
     }
 
     // Inventory
     get inventory() {
-        return $('//a[@href="/inventory" and .//p[normalize-space()="Inventory"]]');
+        return $('//p[normalize-space()="Inventory"]/ancestor::button');
     }
 
     // Incoming
     get incoming() {
-        return $('//a[@href="/incoming" and .//p[normalize-space()="Incoming"]]');
+        return $('//p[normalize-space()="Incoming"]/ancestor::button');
     }
 
     // Outgoing
     get outgoing() {
-        return $('//a[@href="/outgoing" and .//p[normalize-space()="Outgoing"]]');
+        return $('//p[normalize-space()="Outgoing"]/ancestor::button');
     }
 
     get sortingMenu() {
-        return $('//div[@class="vs-sidebar__group__header"]//button[.//div[normalize-space()="Sorting"]]');
+        return $('//div[contains(@class,"vs-sidebar__group__header")]//div[normalize-space()="Sorting"]/ancestor::button');
     }
 
     get openBag() {
-        return $('//a[@href="/sorting/unbagging" and .//p[normalize-space()="Open Bag"]]');
+        return $('//p[normalize-space()="Open Bag"]/ancestor::button');
     }
+
 
     // ======= ACTIONS =======
     // Open Sidebar
