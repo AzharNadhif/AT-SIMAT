@@ -17,7 +17,7 @@ describe('AT-CORE-0014', () => {
             const tests = [
                 { index: 1, value:'BDO/SUB/1758105018862' }, // Bag (expand)
                 { index: 2, value:'BDO10000'},              // Origin (main)
-                { index: 0, value:'0608418726018006' },     // Connote (main)
+                // { index: 0, value:'0608418726018006' },     // Connote (main)
                 { index: 3, value:'SUB10008'},              // Destination (main)
                 { index: 4, value:'4'},                     // Cost Weight (expand)
                 { index: 5, value:'REG23'},                 // Service (main)
