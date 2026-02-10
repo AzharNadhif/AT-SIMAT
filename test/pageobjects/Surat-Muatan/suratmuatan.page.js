@@ -337,7 +337,7 @@ class SuratMuatanPage {
         console.log(`URL print terdeteksi: ${currentUrl}`);
 
         const urlParts = currentUrl.split('/');
-        const urlSuratMuatan = decodeURIComponent(urlParts[5] || '');
+        const   urlSuratMuatan = decodeURIComponent(urlParts[4] || '');
         console.log(`Nomor SM dari URL: ${urlSuratMuatan}`);
 
         await softCheck(
