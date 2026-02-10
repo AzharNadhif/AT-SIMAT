@@ -304,7 +304,7 @@ class SuratMuatanPage {
             return fn();
         };
 
-        const firstRowCell = await $('table tbody tr:first-child td:nth-child(1)');
+        const firstRowCell = await $('table tbody tr:first-child td:nth-child(0)');
         await firstRowCell.waitForDisplayed({ timeout: 10000 });
 
         const SMNumber = (await firstRowCell.getText()).trim();
@@ -337,7 +337,7 @@ class SuratMuatanPage {
         console.log(`URL print terdeteksi: ${currentUrl}`);
 
         const urlParts = currentUrl.split('/');
-        const   urlSuratMuatan = decodeURIComponent(urlParts[5] || '');
+        const urlSuratMuatan = decodeURIComponent(urlParts[5] || '');
         console.log(`Nomor SM dari URL: ${urlSuratMuatan}`);
 
         await softCheck(
