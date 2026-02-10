@@ -304,10 +304,10 @@ class SuratMuatanPage {
             return fn();
         };
 
-        const firstRowCell = await $('table tbody tr:first-child td:nth-child(0)');
+        const firstRowCell = await $('table tbody tr:first-child td:nth-child(1)');
         await firstRowCell.waitForDisplayed({ timeout: 10000 });
 
-        const SMNumber = (await firstRowCell.getText()).trim();
+        const SMNumber = (await firstRowCell.getText());
         console.log(`Nomor SM ditemukan di tabel: "${SMNumber}"`);
 
         await this.btnPrint.waitForDisplayed({ timeout: 5000 });
