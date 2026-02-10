@@ -90,7 +90,7 @@ class InventoryPage {
     async getAllBagCellValues() {
         // Ambil baris pertama (tr[1])
         // Lalu ambil sel kedua (td[2]) di dalam baris itu
-        const cellSelector = '//table/tbody/tr[1]/td[3]';
+        const cellSelector = '//table/tbody/tr[1]/td[2]';
         const cell = await $(cellSelector);
         
         // Pastikan elemen ada sebelum mengambil teksnya
