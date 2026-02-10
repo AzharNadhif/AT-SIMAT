@@ -14,13 +14,13 @@ describe('AT-CORE-0013', () => {
            await ColumnPage.openDropdown();
 
             await ColumnPage.CheckboxByTestId('koli_number', false);
-            await ColumnPage.CheckboxByTestId('bag_number', false);
+            await ColumnPage.CheckboxByTestId('created_at', false);
 
             // Validasi Expect
             const headerTable1 = await $('th=Koli Number');
             await expect(headerTable1).not.toExist();
 
-            const headerTable2 = await $('th=Bag');
+            const headerTable2 = await $('th=Connote Created Date');
             await expect(headerTable2).not.toExist();
 
 
