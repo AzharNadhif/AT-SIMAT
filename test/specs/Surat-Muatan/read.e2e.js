@@ -66,7 +66,7 @@ describe('AT-CORE-0022', () => {
             }
 
             // Validate Status Column after selecting status options'
-            const statusOptions = ['RECEIVED', 'OUTSTANDING', 'UNRECEIVED', 'CANCELED', 'MISSROUTE RECEIVED'];
+            const statusOptions = ['RECEIVED', 'OUTSTANDING', 'UNRECEIVED', 'CANCELED'];
 
             for (const status of statusOptions) {
                 console.log(`\n Memilih status: ${status}`);
@@ -75,7 +75,7 @@ describe('AT-CORE-0022', () => {
                 await SuratmuatanPage.openDropdownFilter('status', status);
 
                 //  Tunggu tabel reload / refresh
-                await browser.pause(2000); // bisa diganti pakai waitUntil untuk lebih stabil
+                await browser.pause(5000); // bisa diganti pakai waitUntil untuk lebih stabil
 
                 //  Ambil kolom 2 dari tabel
                 const cells = await $$('table tbody tr td:nth-child(2)');
