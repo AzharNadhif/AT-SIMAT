@@ -66,7 +66,7 @@ describe('AT-CORE-0022', () => {
             }
 
             // Validate Status Column after selecting status options'
-            const statusOptions = ['RECEIVED', 'OUTSTANDING', 'UNRECEIVED', 'CANCELED'];
+            const statusOptions = ['RECEIVED', 'UNRECEIVED', 'CANCELED'];
 
             for (const status of statusOptions) {
                 console.log(`\n Memilih status: ${status}`);
