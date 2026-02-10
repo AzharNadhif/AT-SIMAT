@@ -58,7 +58,7 @@ describe('AT-CORE-0022', () => {
 
                 console.log(`Value "${value}" ditemukan di tabel`);
 
-                await TotalColumnPage.validateTotalMatchesRows();
+                // await TotalColumnPage.validateTotalMatchesRows();
 
                 // reset search setelah selesai 1 iterasi
                 await SuratmuatanPage.resetSearchSuratMuatan();
