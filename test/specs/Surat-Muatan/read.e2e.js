@@ -75,7 +75,7 @@ describe('AT-CORE-0022', () => {
                 await SuratmuatanPage.openDropdownFilter('status', status);
 
                 //  Tunggu tabel reload / refresh
-                await browser.pause(5000); // bisa diganti pakai waitUntil untuk lebih stabil
+                await browser.pause(8000); // bisa diganti pakai waitUntil untuk lebih stabil
 
                 //  Ambil kolom 2 dari tabel
                 const cells = await $$('table tbody tr td:nth-child(2)');
