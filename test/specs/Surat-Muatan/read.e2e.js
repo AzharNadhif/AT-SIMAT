@@ -58,7 +58,7 @@ describe('AT-CORE-0022', () => {
 
                 console.log(`Value "${value}" ditemukan di tabel`);
 
-                // await TotalColumnPage.validateTotalMatchesRows();
+                await TotalColumnPage.validateTotalMatchesRows();
 
                 // reset search setelah selesai 1 iterasi
                 await SuratmuatanPage.resetSearchSuratMuatan();
@@ -66,7 +66,7 @@ describe('AT-CORE-0022', () => {
             }
 
             // Validate Status Column after selecting status options'
-            const statusOptions = ['RECEIVED', 'UNRECEIVED', 'CANCELED'];
+            const statusOptions = ['UNAPPROVED', 'RECEIVED', 'OUTSTANDING', 'UNRECEIVED', 'CANCELED', 'MISSROUTE RECEIVED'];
 
             for (const status of statusOptions) {
                 console.log(`\n Memilih status: ${status}`);
@@ -75,7 +75,7 @@ describe('AT-CORE-0022', () => {
                 await SuratmuatanPage.openDropdownFilter('status', status);
 
                 //  Tunggu tabel reload / refresh
-                await browser.pause(8000); // bisa diganti pakai waitUntil untuk lebih stabil
+                await browser.pause(10000); // bisa diganti pakai waitUntil untuk lebih stabil
 
                 //  Ambil kolom 2 dari tabel
                 const cells = await $$('table tbody tr td:nth-child(2)');
