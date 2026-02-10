@@ -114,9 +114,9 @@ class ReceivingPage {
         const firstRow = await $('table tbody tr');
         const cells = await firstRow.$$('td');
 
-        const koliNumber = (await cells[1].getText()).trim();   // kolom Koli Number
-        const cod = (await cells[14].getText()).trim();         // kolom COD
-        const amountCod = (await cells[15].getText()).trim();   // kolom Amount COD
+        const koliNumber = (await cells[0].getText()).trim();   // kolom Koli Number
+        const cod = (await cells[13].getText()).trim();         // kolom COD
+        const amountCod = (await cells[14].getText()).trim();   // kolom Amount COD
 
         // Logging biar jelas
         console.log("Koli Number dari tabel:", koliNumber);
