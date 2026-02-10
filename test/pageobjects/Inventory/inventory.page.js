@@ -380,7 +380,7 @@ class InventoryPage {
    // Ambil semua nilai Bag dari row expand (setelah klik tr pertama)
     async getAllBagCellValuesConnote() {
         // Klik row pertama
-        const firstRow = await $('//table/tbody/tr[0]');
+        const firstRow = await $('//table/tbody/tr[1]');
         await firstRow.click();
 
         // Tunggu expand muncul
