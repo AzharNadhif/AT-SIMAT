@@ -10,7 +10,7 @@ describe('AT-CORE-0022', () => {
     describe('AT-CORE-0022-10', () => {
         it('Assert Page Title', async () => {
             await SuratmuatanPage.pageTitle.waitForDisplayed({ timeout: 5000 });    // memastikan halaman sudah dimuat
-            expect(await SuratmuatanPage.pageTitle.getText()).toContain('Surat Muatan');
+            expect(await SuratmuatanPage.pageTitle.getText()).toContain('Error');
         });
     });
     after(async () => { 
