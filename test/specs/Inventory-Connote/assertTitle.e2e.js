@@ -11,7 +11,7 @@ describe('AT-CORE-0014', () => {
     describe('AT-CORE-0014-09', () => {
         it('Assert Page Title', async () => {
             await InventoryPage.pageTitle.waitForDisplayed({ timeout: 5000 });    // memastikan halaman sudah dimuat
-            expect(await InventoryPage.pageTitle.getText()).toContain('Error');
+            expect(await InventoryPage.pageTitle.getText()).toContain('Connote');
         });
     });
 
