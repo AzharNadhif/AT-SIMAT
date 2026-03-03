@@ -25,7 +25,7 @@ class LoginPage extends Page {
         await browser.waitUntil(
             async () => {
                 const url = await browser.getUrl();
-                return url.includes('core-staging.jne.co.id') && !url.includes('login');
+                return url.includes('core-dev.jne.co.id') && !url.includes('login');
             },
             { timeout: 10000, timeoutMsg: 'Login failed or redirect timeout' }
         );
